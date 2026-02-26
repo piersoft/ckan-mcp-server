@@ -18,7 +18,7 @@ MCP (Model Context Protocol) server for interacting with CKAN-based open data po
 - 📄 MCP Resource Templates for direct data access
 - 🧭 Guided MCP prompts for common workflows
 - 🛡️ Browser-like headers to avoid WAF blocks
-- 🧪 Test suite with 214 tests (100% passing)
+- 🧪 Comprehensive test suite (100% passing)
 
 👉 If you want to dive deeper, the [**AI-generated DeepWiki**](https://deepwiki.com/ondata/ckan-mcp-server) is very well done.
 
