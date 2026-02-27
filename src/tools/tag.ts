@@ -14,20 +14,23 @@ type TagItem = {
   display_name?: string;
 };
 
-export function normalizeTagFacets(result: any): TagItem[] {
-  const searchItems = result?.search_facets?.tags?.items;
+export function normalizeTagFacets(result: unknown): TagItem[] {
+  const r = result as Record<string, unknown>;
+  const searchFacets = r?.search_facets as Record<string, unknown> | undefined;
+  const tagsGroup = searchFacets?.tags as Record<string, unknown> | undefined;
+  const searchItems = tagsGroup?.items;
   if (Array.isArray(searchItems)) {
-    return searchItems.map((item: any) => ({
+    return searchItems.map((item: TagItem) => ({
       name: item?.name || item?.display_name || String(item),
       count: typeof item?.count === 'number' ? item.count : 0,
       display_name: item?.display_name
     }));
   }
 
-  const facets = result?.facets?.tags;
+  const facets = (r?.facets as Record<string, unknown>)?.tags;
   if (Array.isArray(facets)) {
     if (facets.length > 0 && typeof facets[0] === 'object') {
-      return facets.map((item: any) => ({
+      return facets.map((item: TagItem) => ({
         name: item?.name || item?.display_name || String(item),
         count: typeof item?.count === 'number' ? item.count : 0,
         display_name: item?.display_name

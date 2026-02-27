@@ -614,9 +614,10 @@ function metricAvailability(section: unknown, availabilityKey: string, statusKey
   return undefined;
 }
 
-function normalizeQualityData(data: any): NormalizedQualityData {
-  const mqaData = data?.mqa ?? data;
-  const breakdown: MqaBreakdown | undefined = data?.breakdown;
+function normalizeQualityData(data: unknown): NormalizedQualityData {
+  const d = data as Record<string, unknown>;
+  const mqaData = (d?.mqa ?? data) as Record<string, unknown>;
+  const breakdown: MqaBreakdown | undefined = d?.breakdown as MqaBreakdown | undefined;
   const resultEntry = mqaData?.result?.results?.[0];
   if (!resultEntry || typeof resultEntry !== "object") {
     return { ...data, breakdown };
@@ -664,7 +665,7 @@ function normalizeQualityData(data: any): NormalizedQualityData {
   };
 }
 
-export function formatQualityMarkdown(data: any, datasetId: string): string {
+export function formatQualityMarkdown(data: unknown, datasetId: string): string {
   const normalized = normalizeQualityData(data);
   const lines: string[] = [];
 

@@ -3,10 +3,100 @@
  */
 
 import { z } from "zod";
-import { ResponseFormat, ResponseFormatSchema } from "../types.js";
+import { ResponseFormat, ResponseFormatSchema, CkanField } from "../types.js";
 import { makeCkanRequest } from "../utils/http.js";
 import { truncateText, addDemoFooter } from "../utils/formatting.js";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+
+export function formatDatastoreSearchMarkdown(
+  result: { fields?: { id: string; type: string }[]; records?: Record<string, unknown>[]; total?: number },
+  serverUrl: string,
+  resourceId: string,
+  offset: number,
+  limit: number
+): string {
+  let markdown = `# DataStore Query Results\n\n`;
+  markdown += `**Server**: ${serverUrl}\n`;
+  markdown += `**Resource ID**: \`${resourceId}\`\n`;
+  markdown += `**Total Records**: ${result.total || 0}\n`;
+  markdown += `**Returned**: ${result.records ? result.records.length : 0} records\n\n`;
+
+  if (result.fields && result.fields.length > 0) {
+    markdown += `## Fields\n\n`;
+    markdown += result.fields.map((f: CkanField) => `- **${f.id}** (${f.type})`).join('\n') + '\n\n';
+  }
+
+  if (result.records && result.records.length > 0) {
+    markdown += `## Records\n\n`;
+    const fields = result.fields ? result.fields.map((f: CkanField) => f.id).filter(id => id !== '_id') : [];
+    const displayFields = fields.slice(0, 8);
+    markdown += `| ${displayFields.join(' | ')} |\n`;
+    markdown += `| ${displayFields.map(() => '---').join(' | ')} |\n`;
+    for (const record of result.records.slice(0, 50)) {
+      const values = displayFields.map(field => {
+        const val = record[field];
+        if (val === null || val === undefined) return '-';
+        const str = String(val);
+        return str.length > 80 ? str.substring(0, 77) + '...' : str;
+      });
+      markdown += `| ${values.join(' | ')} |\n`;
+    }
+    if (result.records.length > 50) {
+      markdown += `\n... and ${result.records.length - 50} more records\n`;
+    }
+    markdown += '\n';
+  }
+
+  if (result.total && result.total > offset + (result.records?.length || 0)) {
+    const nextOffset = offset + limit;
+    markdown += `**More results available**: Use \`offset: ${nextOffset}\` for next page.\n`;
+  }
+
+  return markdown;
+}
+
+export function formatDatastoreSqlMarkdown(
+  result: { fields?: { id: string; type: string }[]; records?: Record<string, unknown>[] },
+  serverUrl: string,
+  sql: string
+): string {
+  const records = result.records || [];
+  const fieldIds = (result.fields?.map((field: CkanField) => field.id) || Object.keys(records[0] || {})).filter(id => id !== '_id');
+
+  let markdown = `# DataStore SQL Results\n\n`;
+  markdown += `**Server**: ${serverUrl}\n`;
+  markdown += `**SQL**: \`${sql}\`\n`;
+  markdown += `**Returned**: ${records.length} records\n\n`;
+
+  if (result.fields && result.fields.length > 0) {
+    markdown += `## Fields\n\n`;
+    markdown += result.fields.map((field: CkanField) => `- **${field.id}** (${field.type})`).join('\n') + '\n\n';
+  }
+
+  if (records.length > 0 && fieldIds.length > 0) {
+    markdown += `## Records\n\n`;
+    const displayFields = fieldIds.slice(0, 8);
+    markdown += `| ${displayFields.join(' | ')} |\n`;
+    markdown += `| ${displayFields.map(() => '---').join(' | ')} |\n`;
+    for (const record of records.slice(0, 50)) {
+      const values = displayFields.map((field) => {
+        const value = record[field];
+        if (value === null || value === undefined) return '-';
+        const text = String(value);
+        return text.length > 80 ? text.substring(0, 77) + '...' : text;
+      });
+      markdown += `| ${values.join(' | ')} |\n`;
+    }
+    if (records.length > 50) {
+      markdown += `\n... and ${records.length - 50} more records\n`;
+    }
+    markdown += '\n';
+  } else {
+    markdown += 'No records returned by the SQL query.\n';
+  }
+
+  return markdown;
+}
 
 export function registerDatastoreTools(server: McpServer) {
   /**
@@ -86,50 +176,7 @@ Typical workflow: ckan_package_search → ckan_package_show (find resource_id wi
           };
         }
 
-        let markdown = `# DataStore Query Results\n\n`;
-        markdown += `**Server**: ${params.server_url}\n`;
-        markdown += `**Resource ID**: \`${params.resource_id}\`\n`;
-        markdown += `**Total Records**: ${result.total || 0}\n`;
-        markdown += `**Returned**: ${result.records ? result.records.length : 0} records\n\n`;
-
-        if (result.fields && result.fields.length > 0) {
-          markdown += `## Fields\n\n`;
-          markdown += result.fields.map((f: any) => `- **${f.id}** (${f.type})`).join('\n') + '\n\n';
-        }
-
-        if (result.records && result.records.length > 0) {
-          markdown += `## Records\n\n`;
-          
-          // Create a simple table
-          const fields = result.fields.map((f: any) => f.id);
-          const displayFields = fields.slice(0, 8); // Limit columns for readability
-          
-          // Header
-          markdown += `| ${displayFields.join(' | ')} |\n`;
-          markdown += `| ${displayFields.map(() => '---').join(' | ')} |\n`;
-          
-          // Rows (limit to 50 for readability)
-          for (const record of result.records.slice(0, 50)) {
-            const values = displayFields.map(field => {
-              const val = record[field];
-              if (val === null || val === undefined) return '-';
-              const str = String(val);
-              return str.length > 50 ? str.substring(0, 47) + '...' : str;
-            });
-            markdown += `| ${values.join(' | ')} |\n`;
-          }
-
-          if (result.records.length > 50) {
-            markdown += `\n... and ${result.records.length - 50} more records\n`;
-          }
-          markdown += '\n';
-        }
-
-        if (result.total && result.total > params.offset + (result.records?.length || 0)) {
-          const nextOffset = params.offset + params.limit;
-          markdown += `**More results available**: Use \`offset: ${nextOffset}\` for next page.\n`;
-        }
-
+        const markdown = formatDatastoreSearchMarkdown(result, params.server_url, params.resource_id, params.offset, params.limit);
         return {
           content: [{ type: "text", text: truncateText(addDemoFooter(markdown)) }]
         };
@@ -196,44 +243,7 @@ Typical workflow: ckan_package_show (get resource_id) → ckan_datastore_search_
           };
         }
 
-        const records = result.records || [];
-        const fieldIds = result.fields?.map((field: any) => field.id) || Object.keys(records[0] || {});
-
-        let markdown = `# DataStore SQL Results\n\n`;
-        markdown += `**Server**: ${params.server_url}\n`;
-        markdown += `**SQL**: \`${params.sql}\`\n`;
-        markdown += `**Returned**: ${records.length} records\n\n`;
-
-        if (result.fields && result.fields.length > 0) {
-          markdown += `## Fields\n\n`;
-          markdown += result.fields.map((field: any) => `- **${field.id}** (${field.type})`).join('\n') + '\n\n';
-        }
-
-        if (records.length > 0 && fieldIds.length > 0) {
-          markdown += `## Records\n\n`;
-
-          const displayFields = fieldIds.slice(0, 8);
-          markdown += `| ${displayFields.join(' | ')} |\n`;
-          markdown += `| ${displayFields.map(() => '---').join(' | ')} |\n`;
-
-          for (const record of records.slice(0, 50)) {
-            const values = displayFields.map((field) => {
-              const value = record[field];
-              if (value === null || value === undefined) return '-';
-              const text = String(value);
-              return text.length > 50 ? text.substring(0, 47) + '...' : text;
-            });
-            markdown += `| ${values.join(' | ')} |\n`;
-          }
-
-          if (records.length > 50) {
-            markdown += `\n... and ${records.length - 50} more records\n`;
-          }
-          markdown += '\n';
-        } else {
-          markdown += 'No records returned by the SQL query.\n';
-        }
-
+        const markdown = formatDatastoreSqlMarkdown(result, params.server_url, params.sql);
         return {
           content: [{ type: "text", text: truncateText(addDemoFooter(markdown)) }]
         };

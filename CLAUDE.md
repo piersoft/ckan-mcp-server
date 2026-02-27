@@ -151,7 +151,15 @@ When making changes:
 **Before committing and pushing**: For any locally testable change, always:
 1. Build locally: `npm run build`
 2. Run automated tests: `npm test`
-3. Run manual queries against the built server to verify the actual behavior, not just that tests pass. Use real CKAN requests (e.g., via the MCP client or HTTP transport) to confirm the feature works end-to-end.
+3. Run real HTTP server tests to verify end-to-end behavior:
+   - Start: `TRANSPORT=http PORT=3001 node dist/index.js & disown`
+   - Call each affected tool via curl against a real CKAN portal
+   - Stop: `kill $(lsof -ti:3001)`
+
+**Portal selection for HTTP tests**:
+- General search / organization tools: `https://www.dati.gov.it/opendata`
+- DataStore tools: `https://dati.comune.messina.it` or `https://open.canada.ca/data` — **dati.gov.it does NOT have DataStore**
+- To find a valid datastore resource_id: `curl -s "https://dati.comune.messina.it/api/3/action/package_search?q=*:*&rows=20" | jq -r '[.result.results[].resources[] | select(.datastore_active==true) | .id][0]'`
 
 ## Architecture
 

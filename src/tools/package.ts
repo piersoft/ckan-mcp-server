@@ -3,7 +3,7 @@
  */
 
 import { z } from "zod";
-import { ResponseFormat, ResponseFormatSchema } from "../types.js";
+import { ResponseFormat, ResponseFormatSchema, CkanTag, CkanResource, CkanPackage } from "../types.js";
 import { makeCkanRequest } from "../utils/http.js";
 import { truncateText, formatDate, formatBytes, addDemoFooter } from "../utils/formatting.js";
 import { getDatasetViewUrl } from "../utils/url-generator.js";
@@ -96,7 +96,7 @@ export const scoreTextField = (text: string | undefined, terms: string[], weight
 
 export const scoreDatasetRelevance = (
   query: string,
-  dataset: any,
+  dataset: CkanPackage,
   weights: RelevanceWeights = DEFAULT_RELEVANCE_WEIGHTS
 ): { total: number; breakdown: RelevanceBreakdown; terms: string[] } => {
   const terms = extractQueryTerms(query);
@@ -113,7 +113,7 @@ export const scoreDatasetRelevance = (
   };
 
   if (Array.isArray(dataset.tags) && dataset.tags.length > 0 && terms.length > 0) {
-    const tagMatch = dataset.tags.some((tag: any) => {
+    const tagMatch = dataset.tags.some((tag: CkanTag) => {
       const tagValue = typeof tag === "string" ? tag : tag?.name;
       return textMatchesTerms(tagValue, terms);
     });
@@ -125,7 +125,7 @@ export const scoreDatasetRelevance = (
   return { total: breakdown.total, breakdown, terms };
 };
 
-export const parseAccessServices = (resource: any): Array<Record<string, any>> => {
+export const parseAccessServices = (resource: CkanResource): Array<Record<string, unknown>> => {
   if (!resource || resource.access_services == null) return [];
   const raw = resource.access_services;
   if (Array.isArray(raw)) return raw;
@@ -140,7 +140,7 @@ export const parseAccessServices = (resource: any): Array<Record<string, any>> =
   return [];
 };
 
-export const extractServiceEndpoints = (services: Array<Record<string, any>>): string[] => {
+export const extractServiceEndpoints = (services: Array<Record<string, unknown>>): string[] => {
   const endpoints: string[] = [];
   for (const service of services) {
     const urls = service.endpoint_url;
@@ -155,7 +155,7 @@ export const extractServiceEndpoints = (services: Array<Record<string, any>>): s
   return Array.from(new Set(endpoints));
 };
 
-export const resolveDownloadUrl = (resource: any): string | null => {
+export const resolveDownloadUrl = (resource: CkanResource): string | null => {
   if (!resource) return null;
   const downloadUrl = typeof resource.download_url === "string" ? resource.download_url.trim() : "";
   const accessUrl = typeof resource.access_url === "string" ? resource.access_url.trim() : "";
@@ -163,11 +163,11 @@ export const resolveDownloadUrl = (resource: any): string | null => {
   return downloadUrl || accessUrl || url || null;
 };
 
-export const enrichPackageShowResult = (result: any): any => ({
+export const enrichPackageShowResult = (result: CkanPackage): CkanPackage => ({
   ...result,
   metadata_harvested_at: result.metadata_modified ?? null,
   resources: Array.isArray(result.resources)
-    ? result.resources.map((resource: any) => {
+    ? result.resources.map((resource: CkanResource) => {
       const accessServices = parseAccessServices(resource);
       const accessEndpoints = extractServiceEndpoints(accessServices);
       const effectiveDownloadUrl = resolveDownloadUrl(resource);
@@ -181,7 +181,7 @@ export const enrichPackageShowResult = (result: any): any => ({
     : result.resources
 });
 
-export const formatPackageShowMarkdown = (result: any, serverUrl: string): string => {
+export const formatPackageShowMarkdown = (result: CkanPackage, serverUrl: string): string => {
   let markdown = `# Dataset: ${result.title || result.name}\n\n`;
   markdown += `**Server**: ${serverUrl}\n`;
   markdown += `**Link**: ${getDatasetViewUrl(serverUrl, result)}\n\n`;
@@ -216,7 +216,7 @@ export const formatPackageShowMarkdown = (result: any, serverUrl: string): strin
 
   if (result.tags && result.tags.length > 0) {
     markdown += `## Tags\n\n`;
-    markdown += result.tags.map((t: any) => `- ${t.name}`).join('\n') + '\n\n';
+    markdown += result.tags.map((t: CkanTag) => `- ${t.name}`).join('\n') + '\n\n';
   }
 
   if (result.groups && result.groups.length > 0) {
@@ -596,7 +596,7 @@ ${params.fq ? `**Filter**: ${params.fq}\n` : ''}
               markdown += `- **Description**: ${notes}${pkg.notes.length > 200 ? '...' : ''}\n`;
             }
             if (pkg.tags && pkg.tags.length > 0) {
-              const tags = pkg.tags.slice(0, 5).map((t: any) => t.name).join(', ');
+              const tags = pkg.tags.slice(0, 5).map((t: CkanTag) => t.name).join(', ');
               markdown += `- **Tags**: ${tags}${pkg.tags.length > 5 ? ', ...' : ''}\n`;
             }
             markdown += `- **Resources**: ${pkg.num_resources || 0}\n`;
@@ -723,7 +723,7 @@ Typical workflow: ckan_find_relevant_datasets → ckan_package_show (inspect top
           }
         );
 
-        const scored = (searchResult.results || []).map((dataset: any) => {
+        const scored = (searchResult.results || []).map((dataset: CkanPackage) => {
           const { total, breakdown } = scoreDatasetRelevance(
             params.query,
             dataset,
@@ -737,16 +737,16 @@ Typical workflow: ckan_find_relevant_datasets → ckan_package_show (inspect top
           };
         });
 
-        scored.sort((a: any, b: any) => b.score - a.score);
+        scored.sort((a, b) => b.score - a.score);
 
-        const top = scored.slice(0, params.limit).map((item: any) => {
+        const top = scored.slice(0, params.limit).map((item) => {
           const dataset = item.dataset;
           return {
             id: dataset.id,
             name: dataset.name,
             title: dataset.title || dataset.name,
             organization: dataset.organization?.title || dataset.organization?.name || dataset.owner_org,
-            tags: Array.isArray(dataset.tags) ? dataset.tags.map((tag: any) => tag.name) : [],
+            tags: Array.isArray(dataset.tags) ? dataset.tags.map((tag: CkanTag) => tag.name) : [],
             metadata_modified: dataset.metadata_modified,
             score: item.score,
             breakdown: item.breakdown
@@ -963,8 +963,8 @@ Typical workflow: ckan_package_search → ckan_list_resources (assess available 
         const formatFilter = params.format_filter?.toUpperCase();
 
         const summary = resources
-          .filter((r: any) => !formatFilter || (r.format || "").toUpperCase() === formatFilter)
-          .map((r: any) => {
+          .filter((r: CkanResource) => !formatFilter || (r.format || "").toUpperCase() === formatFilter)
+          .map((r: CkanResource) => {
             const effectiveUrl = resolveDownloadUrl(r);
             return {
               name: r.name || "Unnamed Resource",
@@ -1014,7 +1014,7 @@ Typical workflow: ckan_package_search → ckan_list_resources (assess available 
             markdown += `| ${name} | ${r.format} | ${size} | ${ds} | \`${r.id}\` |\n`;
           }
 
-          const dsResources = summary.filter((r: any) => r.datastore_active);
+          const dsResources = summary.filter((r) => r.datastore_active);
           if (dsResources.length > 0) {
             markdown += `\n**DataStore-enabled resources** (queryable with \`ckan_datastore_search\`):\n`;
             for (const r of dsResources) {

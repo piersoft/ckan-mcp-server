@@ -19,20 +19,56 @@ function getGroupViewUrl(serverUrl: string, group: { name?: string }): string {
   return `${cleanServerUrl}/group/${group.name}`;
 }
 
-function normalizeGroupFacets(result: any): GroupFacetItem[] {
-  const items = result?.search_facets?.groups?.items;
-  if (Array.isArray(items)) {
-    return items.map((item: any) => ({
+export function formatGroupShowMarkdown(result: { id: string; name: string; title?: string; description?: string; package_count?: number; created?: string; state?: string; packages?: { title?: string; name: string }[] }, serverUrl: string): string {
+  let markdown = `# Group: ${result.title || result.name}\n\n`;
+  markdown += `**Server**: ${serverUrl}\n`;
+  markdown += `**Link**: ${getGroupViewUrl(serverUrl, result)}\n\n`;
+
+  markdown += `## Details\n\n`;
+  markdown += `- **ID**: \`${result.id}\`\n`;
+  markdown += `- **Name**: \`${result.name}\`\n`;
+  markdown += `- **Datasets**: ${result.package_count || 0}\n`;
+  markdown += `- **Created**: ${formatDate(result.created)}\n`;
+  markdown += `- **State**: ${result.state}\n\n`;
+
+  if (result.description) {
+    markdown += `## Description\n\n${result.description}\n\n`;
+  }
+
+  if (result.packages && result.packages.length > 0) {
+    const displayed = Math.min(result.packages.length, 20);
+    const totalHint = result.package_count && result.package_count !== result.packages.length
+      ? ` — ${result.package_count} total`
+      : '';
+    markdown += `## Datasets (showing ${displayed} of ${result.packages.length} returned${totalHint})\n\n`;
+    for (const pkg of result.packages.slice(0, 20)) {
+      markdown += `- **${pkg.title || pkg.name}** (\`${pkg.name}\`)\n`;
+    }
+    if (result.packages.length > 20) {
+      markdown += `\n... and ${result.packages.length - 20} more datasets\n`;
+    }
+    markdown += '\n';
+  }
+
+  return markdown;
+}
+
+function normalizeGroupFacets(result: unknown): GroupFacetItem[] {
+  const r = result as Record<string, unknown>;
+  const items = (r?.search_facets as Record<string, unknown>)?.groups as Record<string, unknown> | undefined;
+  const itemsArr = (items as Record<string, unknown>)?.items;
+  if (Array.isArray(itemsArr)) {
+    return itemsArr.map((item: GroupFacetItem) => ({
       name: item?.name || item?.display_name || String(item),
       display_name: item?.display_name,
       count: typeof item?.count === 'number' ? item.count : 0
     }));
   }
 
-  const facets = result?.facets?.groups;
+  const facets = (r?.facets as Record<string, unknown>)?.groups;
   if (Array.isArray(facets)) {
     if (facets.length > 0 && typeof facets[0] === 'object') {
-      return facets.map((item: any) => ({
+      return facets.map((item: GroupFacetItem) => ({
         name: item?.name || item?.display_name || String(item),
         display_name: item?.display_name,
         count: typeof item?.count === 'number' ? item.count : 0
@@ -219,32 +255,7 @@ Typical workflow: ckan_group_show → ckan_package_show (inspect a dataset) → 
           };
         }
 
-        let markdown = `# Group: ${result.title || result.name}\n\n`;
-        markdown += `**Server**: ${params.server_url}\n`;
-        markdown += `**Link**: ${getGroupViewUrl(params.server_url, result)}\n\n`;
-
-        markdown += `## Details\n\n`;
-        markdown += `- **ID**: \`${result.id}\`\n`;
-        markdown += `- **Name**: \`${result.name}\`\n`;
-        markdown += `- **Datasets**: ${result.package_count || 0}\n`;
-        markdown += `- **Created**: ${formatDate(result.created)}\n`;
-        markdown += `- **State**: ${result.state}\n\n`;
-
-        if (result.description) {
-          markdown += `## Description\n\n${result.description}\n\n`;
-        }
-
-        if (result.packages && result.packages.length > 0) {
-          markdown += `## Datasets (${result.packages.length})\n\n`;
-          for (const pkg of result.packages.slice(0, 20)) {
-            markdown += `- **${pkg.title || pkg.name}** (\`${pkg.name}\`)\n`;
-          }
-          if (result.packages.length > 20) {
-            markdown += `\n... and ${result.packages.length - 20} more datasets\n`;
-          }
-          markdown += '\n';
-        }
-
+        const markdown = formatGroupShowMarkdown(result, params.server_url);
         return {
           content: [{ type: "text", text: truncateText(addDemoFooter(markdown)) }]
         };

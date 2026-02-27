@@ -176,7 +176,7 @@ export default {
     <ul>
       <li><code>ckan_status_show</code> - Check CKAN portal status</li>
       <li><code>ckan_package_search</code> - Search datasets with filters</li>
-      <li><code>ckan_find_relevant_datasets</code> - AI-powered dataset discovery</li>
+      <li><code>ckan_find_relevant_datasets</code> - Deterministic relevance ranking (weighted lexical scoring)</li>
       <li><code>ckan_package_show</code> - Get dataset details</li>
       <li><code>ckan_list_resources</code> - List resources in a dataset</li>
       <li><code>ckan_datastore_search</code> - Query DataStore data</li>
@@ -188,6 +188,8 @@ export default {
       <li><code>ckan_group_show</code> - Get group details</li>
       <li><code>ckan_group_search</code> - Search groups</li>
       <li><code>ckan_tag_list</code> - List tags</li>
+      <li><code>ckan_get_mqa_quality</code> - Get MQA quality metrics for dati.gov.it datasets</li>
+      <li><code>ckan_get_mqa_quality_details</code> - Get detailed MQA quality reasons/flags</li>
     </ul>
 
     <h2>📚 Resources</h2>
@@ -218,7 +220,7 @@ export default {
     if (request.method === 'GET' && url.pathname === '/health') {
       return new Response(JSON.stringify({
         status: 'ok',
-        version: '0.4.50',
+        version: '0.4.51',
         tools: 16,
         resources: 7,
         prompts: 5,

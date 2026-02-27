@@ -7,6 +7,15 @@ import { makeCkanRequest } from "../utils/http.js";
 import { addDemoFooter } from "../utils/formatting.js";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
+export function formatStatusMarkdown(result: { ckan_version?: string; site_title?: string; site_url?: string }, serverUrl: string): string {
+  return `# CKAN Server Status\n\n` +
+    `**Server**: ${serverUrl}\n` +
+    `**Status**: ✅ Online\n` +
+    `**CKAN Version**: ${result.ckan_version || 'Unknown'}\n` +
+    `**Site Title**: ${result.site_title || 'N/A'}\n` +
+    `**Site URL**: ${result.site_url || 'N/A'}\n`;
+}
+
 export function registerStatusTools(server: McpServer) {
   /**
    * Check CKAN server status
@@ -44,12 +53,7 @@ Typical workflow: ckan_status_show (verify server is up) → ckan_package_search
           {}
         );
 
-        const markdown = `# CKAN Server Status\n\n` +
-          `**Server**: ${params.server_url}\n` +
-          `**Status**: ✅ Online\n` +
-          `**CKAN Version**: ${result.ckan_version || 'Unknown'}\n` +
-          `**Site Title**: ${result.site_title || 'N/A'}\n` +
-          `**Site URL**: ${result.site_url || 'N/A'}\n`;
+        const markdown = formatStatusMarkdown(result, params.server_url);
 
         return {
           content: [{ type: "text", text: addDemoFooter(markdown) }],

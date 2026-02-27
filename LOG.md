@@ -1,5 +1,31 @@
 # LOG
 
+## 2026-02-27 (v0.4.51)
+
+- refactor: domain types for all tool files — `CkanTag`, `CkanResource`, `CkanPackage`, `CkanOrganization`, `CkanField`, `CkanDatastoreResult` in `src/types.ts`; `any` reduced 32 → 1
+- refactor: extract rendering functions from handler closures → named exports in `datastore.ts`, `organization.ts`, `group.ts`, `status.ts`; +26 unit tests
+- fix: datastore table — skip `_id` column, increase cell truncation 50 → 80 chars
+- fix: org/group show — dataset heading now shows `showing M of N returned — T total`
+- tests: 191 → 272; all passing
+
+## 2026-02-27 (continued 2)
+
+- fix: datastore table — skip `_id` column, increase cell truncation 50→80 chars
+- fix: org/group show — `## Datasets (N)` → `## Datasets (showing M of N returned — T total)`
+- tests: 270 → 272; all passing
+
+## 2026-02-27 (continued)
+
+- refactor: extract markdown rendering from handler closures into exported functions in `datastore.ts`, `organization.ts`, `group.ts`, `status.ts`
+- add 26 unit tests across 4 new test files (`datastore-formatting`, `organization-formatting`, `group-formatting`, `status-formatting`)
+- test count: 244 → 270; all passing
+
+## 2026-02-27
+
+- refactor: add CKAN domain types (`CkanTag`, `CkanResource`, `CkanPackage`, `CkanOrganization`, `CkanField`, `CkanDatastoreResult`) to `src/types.ts`
+- replace `any` in exported tool functions across `package.ts`, `datastore.ts`, `organization.ts`, `group.ts`, `quality.ts`, `tag.ts` — 32 → 1 remaining (internal handler variable)
+- no behavioral change; 244 tests passing
+
 ## 2026-02-26 (v0.4.50)
 
 - `ckan_list_resources`: add `format_filter` param (case-insensitive, client-side) — e.g. 72 resources → 8 CSV; header shows "Total: 72 (showing 8 CSV)"
