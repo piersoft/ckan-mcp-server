@@ -1,5 +1,12 @@
 # LOG
 
+## 2026-02-28 (v0.4.53)
+
+- feat: new tool `ckan_analyze_datasets` — search + DataStore schema introspection in one call; includes `info.label`/`info.notes` from DataStore Dictionary when available
+- feat: new tool `ckan_catalog_stats` — portal overview (total datasets, categories, formats, organizations) via single faceted query
+- refactor: `quality.ts` tools migrated from deprecated `server.tool()` to `registerTool()` with full annotations
+- tests: 287 passing (+15 new tests)
+
 ## 2026-02-28 (v0.4.52)
 
 - fix: HTTP transport — `/.well-known/oauth-authorization-server` now returns JSON 404 instead of HTML; fixes Claude Code HTTP transport connection failure
