@@ -10,6 +10,7 @@ import { registerStatusTools } from "./tools/status.js";
 import { registerTagTools } from "./tools/tag.js";
 import { registerGroupTools } from "./tools/group.js";
 import { registerQualityTools } from "./tools/quality.js";
+import { registerAnalyzeTools } from "./tools/analyze.js";
 import { registerAllResources } from "./resources/index.js";
 import { registerAllPrompts } from "./prompts/index.js";
 
@@ -28,6 +29,7 @@ export function registerAll(server: McpServer): void {
   registerTagTools(server);
   registerGroupTools(server);
   registerQualityTools(server);
+  registerAnalyzeTools(server);
   registerAllResources(server);
   registerAllPrompts(server);
 }
