@@ -15,7 +15,8 @@ const {
 
 const siteUrl = 'https://ondata.github.io';
 const baseUrl = '/ckan-mcp-server';
-const canonicalURL = new URL(Astro.url.pathname, siteUrl + baseUrl);
+const rawPath = Astro.url.pathname.endsWith('/') ? Astro.url.pathname : Astro.url.pathname + '/';
+const canonicalURL = new URL(rawPath, siteUrl + baseUrl);
 ---
 
 <!DOCTYPE html>
