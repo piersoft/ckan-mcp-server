@@ -157,9 +157,9 @@ The following portals have been tested and verified (as of v0.4.37):
 
 | Portal | Country | Issue | Reason |
 |--------|---------|-------|--------|
-| data.europa.eu | 🇪🇺 EU | 404 | Not using standard CKAN API |
+| data.europa.eu | 🇪🇺 EU | — | Not CKAN — uses proprietary API (`/api/hub/`) |
 | datos.gob.es | 🇪🇸 Spain | — | Not CKAN — uses Linked Data API (`/apidata/`) with SPARQL endpoint |
-| data.gouv.fr | 🇫🇷 France | 404 | Not using CKAN |
+| data.gouv.fr | 🇫🇷 France | — | Not CKAN — uses own API (`/api/1/`) |
 
 ### Related Code
 
