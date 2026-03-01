@@ -1,141 +1,74 @@
 [![npm version](https://img.shields.io/npm/v/@aborruso/ckan-mcp-server)](https://www.npmjs.com/package/@aborruso/ckan-mcp-server)
 [![GitHub](https://img.shields.io/badge/github-ondata%2Fckan--mcp--server-blue?logo=github)](https://github.com/ondata/ckan-mcp-server)
 [![deepwiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/ondata/ckan-mcp-server)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # CKAN MCP Server
 
-MCP (Model Context Protocol) server for interacting with CKAN-based open data portals.
+**Give your AI assistant direct access to any CKAN open data portal — search datasets, explore organizations, query tabular data, and read metadata, all through natural language.**
 
-## Features
+CKAN is the open-source platform behind most public open data portals worldwide (Italy's dati.gov.it, the US data.gov, Canada's open.canada.ca, and many more). Navigating these portals usually requires knowing their structure, APIs, and search syntax. This MCP server removes that barrier: once connected, your AI tool can do it all for you.
 
-- ✅ Support for any CKAN server (dati.gov.it, data.gov, demo.ckan.org, etc.)
-- 🔍 Advanced search with Solr syntax
-- 📊 DataStore queries for tabular data analysis
-- 🏢 Organization and group exploration
-- 📦 Complete dataset and resource metadata
-- 🎨 Output in Markdown or JSON format
-- ⚡ Pagination and faceting support
-- 📄 MCP Resource Templates for direct data access
-- 🧭 Guided MCP prompts for common workflows
-- 🛡️ Browser-like headers to avoid WAF blocks
-- 🧪 Comprehensive test suite (100% passing)
+**Who is this for?** Everyone. Journalists looking for data to verify a story. Researchers exploring public datasets. Public servants checking what data their administration publishes. Developers building data pipelines. No CKAN knowledge required.
 
-👉 If you want to dive deeper, the [**AI-generated DeepWiki**](https://deepwiki.com/ondata/ckan-mcp-server) is very well done.
+**Two ways to use it — pick the one that suits you:**
 
----
+| | Option A: Install locally | Option B: No install |
+|---|---|---|
+| **How** | `npm install -g @aborruso/ckan-mcp-server` | Point your tool to the hosted HTTP endpoint |
+| **Best for** | Runs on your machine, works with any local tool | Quick start, zero setup |
+| **Limits** | None | 100k requests/day shared quota |
 
-> **💡 Local installation available** for unlimited access and better performance:
-> ```bash
-> npm install -g @aborruso/ckan-mcp-server
-> ```
->
-> The Cloudflare Workers endpoint has 100k requests/day shared quota - sufficient for most users, but local installation is recommended for heavy usage.
+Hosted endpoint: `https://ckan-mcp-server.andy-pr.workers.dev/mcp`
+
+> **Recommendation**: Option B is a great way to get started and try things out without any setup. Once you're familiar with what the server can do, switching to Option A (local install) gives you unlimited usage with no shared quotas.
+
+👉 Want to explore the codebase? The [**AI-generated DeepWiki**](https://deepwiki.com/ondata/ckan-mcp-server) is a great starting point.
+
+**License**: MIT — see [LICENSE.txt](LICENSE.txt) for complete details. Third-party notices: [NOTICE.md](NOTICE.md).
 
 ---
 
-## Installation
+## Use it in your favorite tool
 
-Install via npm:
+[ChatGPT](#chatgpt) | [Claude Desktop](#claude-desktop) | [Claude Code](#claude-code) | [Gemini CLI](#gemini-cli) | [VS Code](#vs-code) | [Codex CLI](#codex-cli)
 
-```bash
-npm install -g @aborruso/ckan-mcp-server
-```
+All examples below work with **both** the local installation and the hosted endpoint. Where both options differ, both are shown.
 
-That's it! The server will be available as `ckan-mcp-server` command or via `npx @aborruso/ckan-mcp-server`.
+### ChatGPT
 
-### Quick Testing with Workers (optional)
+> Requires a ChatGPT Plus, Team, or Enterprise plan.
 
-For quick testing without installation, you can use the public Cloudflare Workers endpoint:
+1. Open [chatgpt.com](https://chatgpt.com) and go to **Settings → Connectors**
+2. Click **Add connector** (enable developer mode if prompted)
+3. Enter the endpoint URL:
 
 ```
 https://ckan-mcp-server.andy-pr.workers.dev/mcp
 ```
 
-**⚠️ Warning**: This is a demo instance with 100,000 requests/month shared globally across all users. Not recommended for production use. Install locally for reliable service.
+4. Save and start a new conversation — ask ChatGPT to search for datasets on any CKAN portal.
 
-## MCP Client Configuration
+---
 
-This server works with any MCP-compatible client. Below are configuration examples for popular clients, organized by category.
+### Claude Desktop
 
-**Recommended**: Use `@aborruso/ckan-mcp-server@latest` to always get the latest version.
+**Option A — Add via connector UI (no install):**
 
-### CLI Tools
+1. Open Claude Desktop and go to **Settings → Integrations**
+2. Click **Add custom integration**
+3. Fill in the details:
+   - **Name:** CKAN MCP Server
+   - **MCP Server URL:** `https://ckan-mcp-server.andy-pr.workers.dev/mcp`
+4. Click **Add** to save
+5. Open a new chat, click **+**, select **Integrations**, and enable **CKAN MCP Server**
+6. When Claude asks to use a tool, click **Allow** (or **Always allow**)
 
-#### Codex
+> For a detailed walkthrough with screenshots, see the [full Claude guide](docs/guide/claude/claude_web.md).
 
-```json
-{
-  "mcpServers": {
-    "ckan": {
-      "command": "npx",
-      "args": ["@aborruso/ckan-mcp-server@latest"]
-    }
-  }
-}
-```
+---
 
-#### Copilot CLI
-
-```bash
-copilot mcp add ckan npx @aborruso/ckan-mcp-server@latest
-```
-
-#### Gemini CLI
-
-```bash
-gemini mcp add ckan npx @aborruso/ckan-mcp-server@latest
-```
-
-### IDEs & Code Editors
-
-#### Copilot / VS Code
-
-Add to VS Code settings (`.vscode/settings.json` or User Settings):
-
-```json
-{
-  "mcpServers": {
-    "ckan": {
-      "command": "npx",
-      "args": ["@aborruso/ckan-mcp-server@latest"]
-    }
-  }
-}
-```
-
-#### Cursor
-
-Add to Cursor MCP settings:
-
-```json
-{
-  "mcpServers": {
-    "ckan": {
-      "command": "npx",
-      "args": ["@aborruso/ckan-mcp-server@latest"]
-    }
-  }
-}
-```
-
-#### OpenCode
-
-Add to OpenCode configuration:
-
-```json
-{
-  "mcpServers": {
-    "ckan": {
-      "command": "npx",
-      "args": ["@aborruso/ckan-mcp-server@latest"]
-    }
-  }
-}
-```
-
-### Desktop Applications
-
-#### Claude Desktop
+**Option B — Add via config file:**
 
 Configuration file location:
 
@@ -143,38 +76,7 @@ Configuration file location:
 - **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 - **Linux**: `~/.config/Claude/claude_desktop_config.json`
 
-**Using npx (recommended)**:
-
-```json
-{
-  "mcpServers": {
-    "ckan": {
-      "command": "npx",
-      "args": ["@aborruso/ckan-mcp-server@latest"]
-    }
-  }
-}
-```
-
-**Using global installation**:
-
-```bash
-npm install -g @aborruso/ckan-mcp-server
-```
-
-```json
-{
-  "mcpServers": {
-    "ckan": {
-      "command": "ckan-mcp-server"
-    }
-  }
-}
-```
-
-[Detailed guide](https://github.com/ondata/ckan-mcp-server/discussions/4#discussion-9359684)
-
-**For testing only - Cloudflare Workers endpoint**:
+Using the hosted endpoint (no install):
 
 ```json
 {
@@ -186,40 +88,159 @@ npm install -g @aborruso/ckan-mcp-server
 }
 ```
 
-⚠️ **Warning**: Demo instance with 100,000 requests/month shared globally across all users. Not reliable for production use.
-
-**Claude Desktop on Windows reading from a local MCP server installed on WSL2**:
+Using local installation:
 
 ```json
 {
   "mcpServers": {
     "ckan": {
-      "command": "wsl.exe",
-      "args": [
-        "-e",
-        "/usr/local/bin/node",
-        "/home/username/projects/ckan-mcp-server/dist/index.js"
-      ]
+      "command": "npx",
+      "args": ["@aborruso/ckan-mcp-server@latest"]
     }
   }
 }
 ```
 
-This requires the server to be built (`npm run build`) inside the WSL2 environment before use.
+---
 
-### Web Tools
+### Claude Code
 
-#### ChatGPT
+**Using the hosted endpoint (no install):**
 
-See [ChatGPT web guide](docs/guide/chatgpt/chatgpt_web.md)
+```bash
+claude mcp add --transport http --scope user ckan https://ckan-mcp-server.andy-pr.workers.dev/mcp
+```
 
-#### Claude
+**Using local installation:**
 
-See [Claude web guide](docs/guide/claude/claude_web.md)
+```bash
+claude mcp add --scope user ckan npx @aborruso/ckan-mcp-server@latest
+```
 
-⚠️ **Note**: Web tools use a demo server with 100,000 requests/month shared globally across all users. **For reliable usage, install the server locally** (see Installation section above).
+> `--scope user` makes the server available globally across all your projects, not just the current one.
 
-## Available Tools
+To add it only for a specific project, run from the project folder without the `--scope user` flag:
+
+```bash
+claude mcp add --transport http ckan https://ckan-mcp-server.andy-pr.workers.dev/mcp
+```
+
+---
+
+### Gemini CLI
+
+Add to `~/.gemini/settings.json`:
+
+**Using the hosted endpoint (no install):**
+
+```json
+{
+  "mcpServers": {
+    "ckan": {
+      "httpUrl": "https://ckan-mcp-server.andy-pr.workers.dev/mcp"
+    }
+  }
+}
+```
+
+**Using local installation:**
+
+```json
+{
+  "mcpServers": {
+    "ckan": {
+      "command": "npx",
+      "args": ["@aborruso/ckan-mcp-server@latest"]
+    }
+  }
+}
+```
+
+---
+
+### VS Code
+
+Add to your User Settings or `.vscode/settings.json`:
+
+**Using the hosted endpoint (no install):**
+
+```json
+{
+  "mcpServers": {
+    "ckan": {
+      "url": "https://ckan-mcp-server.andy-pr.workers.dev/mcp",
+      "type": "http"
+    }
+  }
+}
+```
+
+**Using local installation:**
+
+```json
+{
+  "mcpServers": {
+    "ckan": {
+      "command": "npx",
+      "args": ["@aborruso/ckan-mcp-server@latest"]
+    }
+  }
+}
+```
+
+---
+
+### Codex CLI
+
+Add to `~/.codex/config.toml`:
+
+**Using the hosted endpoint (no install):**
+
+```toml
+[mcp_servers.ckan]
+url = "https://ckan-mcp-server.andy-pr.workers.dev/mcp"
+```
+
+**Using local installation:**
+
+```toml
+[mcp_servers.ckan]
+command = "npx"
+args = ["-y", "@aborruso/ckan-mcp-server@latest"]
+```
+
+---
+
+## 🖥️ Run locally
+
+### Option 1 — Install via npm
+
+The quickest way. Install the package globally and it's immediately available as a command:
+
+```bash
+npm install -g @aborruso/ckan-mcp-server
+```
+
+The server will be available as `ckan-mcp-server`, or you can run it without installing via:
+
+```bash
+npx @aborruso/ckan-mcp-server@latest
+```
+
+### Option 2 — Clone and build
+
+For development or if you want to run the latest unreleased code:
+
+```bash
+git clone https://github.com/ondata/ckan-mcp-server.git
+cd ckan-mcp-server
+npm install
+npm run build
+node dist/index.js
+```
+
+---
+## 🛠️ Available Tools
 
 ### Search and Discovery
 
@@ -234,16 +255,16 @@ See [Claude web guide](docs/guide/claude/claude_web.md)
 - **ckan_organization_show**: Details of an organization
 - **ckan_organization_search**: Search organizations by name
 
-### DataStore
-
-- **ckan_datastore_search**: Query tabular data
-- **ckan_datastore_search_sql**: SQL queries on DataStore
-
 ### Groups
 
 - **ckan_group_list**: List groups
 - **ckan_group_show**: Show group details
 - **ckan_group_search**: Search groups by name
+
+### DataStore
+
+- **ckan_datastore_search**: Query tabular data
+- **ckan_datastore_search_sql**: SQL queries on DataStore
 
 ### Quality Metrics
 
@@ -254,6 +275,7 @@ See [Claude web guide](docs/guide/claude/claude_web.md)
 
 - **ckan_status_show**: Verify server status
 
+---
 ## MCP Resource Templates
 
 Direct data access via `ckan://` URI scheme:
@@ -278,32 +300,10 @@ ckan://dati.gov.it/tag/turismo/datasets
 ckan://dati.gov.it/format/csv/datasets
 ```
 
-## Guided Prompts
-
-Prompt templates that guide users through common CKAN workflows:
-
-- **ckan-search-by-theme**: Find a theme/group and list datasets under it
-- **ckan-search-by-organization**: Discover an organization and list its datasets
-- **ckan-search-by-format**: Find datasets by resource format (CSV/JSON/etc.)
-- **ckan-recent-datasets**: List recently updated datasets
-- **ckan-analyze-dataset**: Inspect dataset metadata and explore DataStore resources
-
-Example (retrieve a prompt by name with args):
-
-```json
-{
-  "name": "ckan-search-by-theme",
-  "arguments": {
-    "server_url": "https://www.dati.gov.it/opendata",
-    "theme": "ambiente",
-    "rows": 10
-  }
-}
-```
-
+---
 ## Usage Examples
 
-### Search datasets on dati.gov.it (natural language: "search for population datasets")
+### Search datasets (natural language: "search for population datasets")
 
 ```typescript
 ckan_package_search({
@@ -320,9 +320,10 @@ ckan_package_search({
   server_url: "https://www.dati.gov.it/opendata",
   q: "hotel OR alberghi OR \"strutture ricettive\" OR ospitalità OR ricettività",
   query_parser: "text",
-  rows: 0
+  rows: 0  // returns only the total count, no dataset records — useful to check how many results match before fetching them
 })
 ```
+
 Note: when `query_parser: "text"` is used, Solr special characters in the query are escaped automatically.
 
 ### Rank datasets by relevance (natural language: "find most relevant datasets about urban mobility")
@@ -335,26 +336,13 @@ ckan_find_relevant_datasets({
 })
 ```
 
-### Filter by organization (natural language: "show recent datasets from Sicilian Region")
+### Filter by organization (natural language: "show recent datasets from Tuscany Region")
 
 ```typescript
 ckan_package_search({
   server_url: "https://www.dati.gov.it/opendata",
-  fq: "organization:regione-siciliana",
+  fq: "organization:regione-toscana",
   sort: "metadata_modified desc"
-})
-```
-
-### Search organizations with wildcard (natural language: "find all organizations with health/salute in name")
-
-```typescript
-// Find all organizations containing "salute" in the name
-ckan_package_search({
-  server_url: "https://www.dati.gov.it/opendata",
-  q: "organization:*salute*",
-  rows: 0,
-  facet_field: ["organization"],
-  facet_limit: 100
 })
 ```
 
@@ -364,7 +352,7 @@ ckan_package_search({
 ckan_package_search({
   server_url: "https://www.dati.gov.it/opendata",
   facet_field: ["organization", "tags", "res_format"],
-  rows: 0
+  rows: 0  // skip dataset records, return only the facet counts
 })
 ```
 
@@ -389,35 +377,42 @@ ckan_group_search({
 
 ### DataStore Query (natural language: "query tabular data filtering by region and year")
 
+> **What is DataStore?** CKAN DataStore is an optional extension that imports tabular resources (CSV, Excel) into a queryable database. It allows filtering, sorting, and field selection directly on the data — without downloading the file. Not all portals have it enabled, and not all datasets use it even when the portal supports it. Check `datastore_active: true` on a resource to confirm availability.
+
 ```typescript
+// Ordinanze viabili del Comune di Messina — resource with datastore_active: true
 ckan_datastore_search({
-  server_url: "https://www.dati.gov.it/opendata",
-  resource_id: "abc-123-def",
-  filters: { "regione": "Sicilia", "anno": 2023 },
-  sort: "popolazione desc",
-  limit: 50
+  server_url: "https://dati.comune.messina.it",
+  resource_id: "17301b8b-2a5b-425f-80b0-5b75bb1793e9",
+  filters: { "tipo": "lavori" },
+  sort: "data_pubblicazione desc",
+  limit: 10
 })
 ```
 
-### DataStore SQL Query (natural language: "count records by country with SQL")
+> 👏 A shout-out to Comune di Messina and all public administrations that enable the DataStore extension: by doing so, they make their data dramatically easier to query and explore — including through AI tools like this one.
+
+### DataStore SQL Query (natural language: "count road orders by type")
 
 ```typescript
+// Count ordinanze viabili by tipo — Comune di Messina
 ckan_datastore_search_sql({
-  server_url: "https://demo.ckan.org",
-  sql: "SELECT Country, COUNT(*) AS total FROM \"abc-123-def\" GROUP BY Country ORDER BY total DESC LIMIT 10"
+  server_url: "https://dati.comune.messina.it",
+  sql: "SELECT tipo, COUNT(*) AS total FROM \"17301b8b-2a5b-425f-80b0-5b75bb1793e9\" GROUP BY tipo ORDER BY total DESC LIMIT 5"
 })
 ```
 
+---
 ## Supported CKAN Portals
 
-Verified portals with public API access:
+Some examples of supported portals:
 
 - 🇮🇹 **https://www.dati.gov.it/opendata** - Italian National Open Data Portal (CKAN 2.10.3)
 - 🇺🇸 **https://catalog.data.gov** - United States Open Data (CKAN 2.11.4)
 - 🇨🇦 **https://open.canada.ca/data** - Canada Open Government (CKAN 2.10.8)
 - 🇦🇺 **https://data.gov.au** - Australian Government Open Data (CKAN 2.11.4)
 - 🇬🇧 **https://data.gov.uk** - United Kingdom Open Data
-- And 500+ more portals worldwide
+- And many more portals worldwide
 
 ### Portal View URL Templates
 
@@ -429,11 +424,12 @@ When generating a dataset or organization view link, the server:
 - uses the portal-specific `dataset_view_url` / `organization_view_url` template when available
 - falls back to the generic defaults (`{server_url}/dataset/{name}` and `{server_url}/organization/{name}`)
 
-You can extend [`src/portals.json`](src/portals.json) by adding new entries under `portals` if a portal uses different web URL patterns.
-
+---
 ## Advanced Solr Queries
 
-CKAN uses Apache Solr for search. Examples:
+CKAN uses [Apache Solr](https://solr.apache.org/) as its default search engine. Understanding Solr syntax unlocks the full power of dataset search — from simple keywords to complex boolean expressions, fuzzy matching, proximity searches, and date math.
+
+### Basic syntax
 
 ```
 # Basic search
@@ -484,7 +480,7 @@ ckan_package_search({
 - `NOW-6MONTHS` - Dynamic date math for rolling time windows
 - Combined boolean logic with multiple field searches
 
-**Results**: 871 datasets including hospital units, healthcare organizations, medical services
+**Results**: 949 datasets including hospital units, healthcare organizations, medical services
 
 #### 2. Proximity Search + Complex Boolean (natural language: "find air pollution datasets excluding water")
 
@@ -506,53 +502,51 @@ ckan_package_search({
 - `NOT (title:acqua OR title:mare)` - Exclude water/sea datasets
 - Faceting for statistical breakdown
 
-**Results**: 306 datasets, primarily air quality monitoring from Milan (44) and Palermo (161), formats: XML (150), CSV (124), JSON (76)
+**Results**: 305 datasets
 
-#### 3. Wildcard + Field Existence + Range Queries (natural language: "regional datasets with many resources from last year")
+#### 3. Wildcard + Field Existence + Date Math (natural language: "regional datasets with any format from last month")
 
-Regional datasets with at least 5 resources, published in the last year:
+Regional datasets published in the last month that have at least one resource format declared:
 
 ```typescript
 ckan_package_search({
   server_url: "https://www.dati.gov.it/opendata",
-  q: "organization:regione* AND num_resources:[5 TO *] AND metadata_created:[NOW-1YEAR TO *] AND res_format:*",
-  sort: "num_resources desc, metadata_modified desc",
+  q: "organization:regione* AND metadata_created:[NOW-1MONTH TO *] AND res_format:*",
+  sort: "metadata_modified desc",
   facet_field: ["organization"],
-  rows: 40
+  rows: 10
 })
 ```
 
 **Techniques used**:
 
 - `regione*` - Wildcard matches all regional organizations
-- `[5 TO *]` - Inclusive range (5 or more resources)
-- `res_format:*` - Field existence check (has at least one resource format)
-- `NOW-1YEAR` - Rolling 12-month window
+- `res_format:*` - Field existence check (has at least one resource format declared)
+- `NOW-1MONTH` - Rolling 30-day window
 
-**Results**: 5,318 datasets, top contributors: Lombardy (3,012), Tuscany (1,151), Puglia (460)
+**Results**: 293 datasets
 
-#### 4. Date Ranges + Exclusive Bounds (natural language: "ISTAT datasets with 10-50 resources from specific period")
+#### 4. Explicit Date Range + Facets (natural language: "Ministry of Labour datasets updated in 2025")
 
-ISTAT datasets with moderate resource count (10-50), modified in specific date range:
+Datasets from the Italian Ministry of Labour modified during 2025, with facets by format and tags:
 
 ```typescript
 ckan_package_search({
   server_url: "https://www.dati.gov.it/opendata",
-  q: "(title:istat OR organization:*istat*) AND num_resources:{9 TO 51} AND metadata_modified:[2025-07-01T00:00:00Z TO 2025-12-31T23:59:59Z]",
+  q: "organization:ministero-del-lavoro AND metadata_modified:[2025-01-01T00:00:00Z TO 2025-12-31T23:59:59Z]",
   sort: "metadata_modified desc",
   facet_field: ["res_format", "tags"],
-  rows: 30
+  rows: 10
 })
 ```
 
 **Techniques used**:
 
-- `{9 TO 51}` - Exclusive bounds (10-50 resources, excluding 9 and 51)
-- `[2025-07-01T00:00:00Z TO 2025-12-31T23:59:59Z]` - Explicit date range
-- Combined organization wildcard with title search
-- Multiple facets for content analysis
+- `[2025-01-01T00:00:00Z TO 2025-12-31T23:59:59Z]` - Explicit date range (full year)
+- `organization:ministero-del-lavoro` - Filter by specific organization
+- Multiple facets for format and topic breakdown
 
-**Note**: This specific query returned 0 results due to the narrow time window, demonstrating how precise constraints work.
+**Results**: 83 datasets
 
 ### Solr Query Syntax Reference
 
@@ -570,7 +564,80 @@ ckan_package_search({
 **Date Math**: `NOW`, `NOW-1YEAR`, `NOW-6MONTHS`, `NOW-7DAYS`, `NOW/DAY`
 **Field Existence**: `field:*` (field exists), `NOT field:*` (field missing)
 
-## Project Structure
+---
+
+## Date fields: source portals vs aggregators
+
+CKAN portals can be *source* catalogs (data published directly by the organization) or *harvesting aggregators* (data collected from many other portals). This distinction matters a lot when filtering by date.
+
+| Field | Meaning on source portal | Meaning on aggregator |
+|---|---|---|
+| `issued` | When the publisher released the dataset | When the publisher released the dataset |
+| `metadata_created` | When the record was first created | When the record was first harvested |
+| `metadata_modified` | When the record was last updated | When the record was last re-harvested |
+
+On an aggregator like `dati.gov.it`, `metadata_modified` is updated every time the portal re-harvests — even if the dataset content hasn't changed. This makes it unsuitable for finding "recently updated content".
+
+**Example — same dataset, three different timestamps on dati.gov.it (aggregator):**
+
+```json
+{
+  "issued": "2024-12-10",
+  "metadata_created": "2024-12-16",
+  "metadata_modified": "2026-02-28"
+}
+```
+
+> `metadata_modified` is February 2026 only because the portal re-harvested it then — not because the data changed.
+
+**Which date fields are filterable on dati.gov.it?**
+
+All three fields are Solr-indexed and usable in queries:
+
+| Field | Solr-indexed | What queries return |
+|---|---|---|
+| `issued` | ✅ | Datasets by publisher release date — most meaningful, but ~14% of datasets lack it |
+| `metadata_created` | ✅ | Datasets by first harvesting date on dati.gov.it |
+| `metadata_modified` | ✅ | Datasets by last re-harvesting date — often noisy |
+
+**Query examples (dati.gov.it):**
+
+```
+# Datasets about road accidents published by the original source in 2025
+ckan_package_search({
+  server_url: "https://www.dati.gov.it/opendata",
+  q: "incidenti stradali",
+  fq: "issued:[2025-01-01T00:00:00Z TO 2025-12-31T23:59:59Z]"
+})
+// → ~121 results (only datasets where publisher filled in `issued`)
+
+# Datasets first appearing on dati.gov.it in 2025
+ckan_package_search({
+  server_url: "https://www.dati.gov.it/opendata",
+  q: "incidenti stradali",
+  fq: "metadata_created:[2025-01-01T00:00:00Z TO 2025-12-31T23:59:59Z]"
+})
+// → ~164 results (includes older datasets harvested for the first time in 2025)
+```
+
+> **Note on `issued` coverage**: ~59,700 of 69,000+ datasets on dati.gov.it have `issued` populated. Queries on `issued` are accurate but incomplete — datasets without the field are silently excluded. Prefer `issued` for content-date queries; use `metadata_created` only as a fallback for "when did this appear on the portal".
+
+**Recommendation**: use `issued` to find datasets by publication date. Use `metadata_created` to find datasets that appeared on the portal recently.
+
+---
+
+## Useful Links
+
+- [CKAN](https://ckan.org/) — the open-source platform behind most public open data portals
+- [CKAN API Documentation](https://docs.ckan.org/en/latest/api/) — full reference for the CKAN API v3
+- [DCAT Vocabulary (W3C)](https://www.w3.org/TR/vocab-dcat/) — the metadata standard used by CKAN portals to describe datasets
+- [MCP Protocol](https://modelcontextprotocol.io/) — Model Context Protocol specification
+
+---
+
+## Developer Reference
+
+### Project Structure
 
 ```
 ckan-mcp-server/
@@ -592,7 +659,7 @@ ckan-mcp-server/
 │   │   └── group.ts        # Group tools
 │   ├── resources/          # MCP Resource Templates
 │   │   ├── index.ts
-│   │   ├── uri.ts          # URI parsing
+│   │   ├── uri.ts
 │   │   ├── dataset.ts
 │   │   ├── resource.ts
 │   │   └── organization.ts
@@ -604,152 +671,92 @@ ckan-mcp-server/
 │   │   ├── recent.ts
 │   │   └── dataset-analysis.ts
 │   └── transport/
-│       ├── stdio.ts        # Stdio transport
-│       └── http.ts         # HTTP transport
-├── tests/                  # Test suite (212 tests)
-├── dist/                   # Compiled files (generated)
+│       ├── stdio.ts
+│       └── http.ts
+├── tests/                  # Test suite
+├── dist/                   # Compiled output (generated)
 ├── package.json
 └── README.md
 ```
 
-## Development
-
-This project uses [OpenSpec](https://github.com/Fission-AI/OpenSpec) to manage change proposals and keep specifications aligned with implementation.
-
-### Testing
-
-The project uses **Vitest** for automated testing:
+### Build & Test
 
 ```bash
+# Build (esbuild, ~4ms)
+npm run build
+
+# Watch mode
+npm run watch
+
 # Run all tests
 npm test
 
-# Run tests in watch mode
+# Watch mode for tests
 npm run test:watch
 
-# Run tests with coverage report
+# Coverage report
 npm run test:coverage
 ```
 
-Current test coverage: ~39% (utils: 98%, tools: 15-20%).
+### Explore with MCP Inspector
 
-Test suite includes:
-- Unit tests for utility functions (formatting, HTTP, URI parsing, URL generation)
-- Integration tests for MCP tools with mocked CKAN API responses
-- Mock fixtures for CKAN API success and error scenarios
-
-Coverage is higher for utility modules and lower for tool handlers.
-See `tests/README.md` for detailed testing guidelines.
-
-### Build
-
-The project uses **esbuild** for ultra-fast compilation (~4ms):
+The [MCP Inspector](https://github.com/modelcontextprotocol/inspector) lets you browse tools, test calls interactively, and debug responses in a web UI:
 
 ```bash
-# Build with esbuild (default)
-npm run build
-
-# Watch mode for development
-npm run watch
-```
-
-### Exploring the Server
-
-If you want to explore and test the server interactively, use the MCP Inspector:
-
-```bash
-# Install MCP Inspector globally (one-time setup)
 npm install -g @modelcontextprotocol/inspector
-
-# Build the server
 npm run build
-
-# Launch Inspector with your server
 npx @modelcontextprotocol/inspector node dist/index.js
 ```
 
-This opens a web interface (usually at `http://localhost:5173`) where you can:
-- Browse all registered tools and resources
-- Test tool calls with auto-complete for parameters
-- See real-time responses in both JSON and rendered format
-- Debug errors with detailed stack traces
+Opens at `http://localhost:5173`.
 
-### Manual Testing
+### Manual HTTP Testing
 
 ```bash
-# Start server in HTTP mode
-TRANSPORT=http PORT=3000 npm start
+# Start server
+TRANSPORT=http PORT=3001 node dist/index.js
 
-# In another terminal, test available tools
-curl -X POST http://localhost:3000/mcp \
+# List available tools
+curl -s -X POST http://localhost:3001/mcp \
   -H 'Content-Type: application/json' \
   -H 'Accept: application/json, text/event-stream' \
   -d '{"jsonrpc":"2.0","method":"tools/list","id":1}'
+
+# Call a tool
+curl -s -X POST http://localhost:3001/mcp \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json, text/event-stream' \
+  -d '{
+    "jsonrpc":"2.0","method":"tools/call",
+    "params":{"name":"ckan_package_search","arguments":{"server_url":"https://www.dati.gov.it/opendata","q":"ambiente","rows":3}},
+    "id":1
+  }' | jq -r '.result.content[0].text'
 ```
 
-## Troubleshooting
+### Troubleshooting
 
-### dati.gov.it URL
+**Wrong URL for Italian portal** — use `https://www.dati.gov.it/opendata` (not `https://dati.gov.it`).
 
-**Important**: The correct URL for the Italian portal is `https://www.dati.gov.it/opendata` (not `https://dati.gov.it`).
-
-### Connection error
+**Connection error**
 
 ```
-Error: Server not found: https://esempio.gov.it
+Error: Server not found: https://example.gov
 ```
 
-**Solution**: Verify the URL is correct and the server is online. Use `ckan_status_show` to verify.
+Verify the URL is reachable and use `ckan_status_show` to confirm the portal is responding.
 
-### No results
+**No results** — broaden your query or check what's available with facets:
 
 ```typescript
-// Use a more generic query
 ckan_package_search({
   server_url: "https://www.dati.gov.it/opendata",
-  q: "*:*"
-})
-
-// Check contents with faceting
-ckan_package_search({
-  server_url: "https://www.dati.gov.it/opendata",
+  q: "*:*",
   facet_field: ["tags", "organization"],
   rows: 0
 })
 ```
 
-## Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the project
-2. Create a branch for the feature (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## License
-
-MIT License - See [LICENSE.txt](LICENSE.txt) for complete details.
-
-Third-party attributions: See [NOTICE.md](NOTICE.md) for third-party software notices and information.
-
-## Useful Links
-
-- **CKAN**: https://ckan.org/
-- **CKAN API Documentation**: https://docs.ckan.org/en/latest/api/
-- **MCP Protocol**: https://modelcontextprotocol.io/
-
-## Date fields (source vs aggregator)
-
-CKAN portals can be *source* catalogs or *harvesting aggregators*.
-
-- `issued` / `modified`: publisher content dates (best for "created/updated" when present)
-- `metadata_created` / `metadata_modified`: CKAN record timestamps (publish time on source portals,
-  harvest time on aggregators)
-
-For "recent content" queries, prefer `issued` with a fallback to `metadata_created`
-when `issued` is missing (see the `content_recent` helper in `ckan_package_search`).
+---
 
 ## Support
 
@@ -757,4 +764,4 @@ For issues or questions, [open an issue on GitHub](https://github.com/ondata/cka
 
 ---
 
-Created with ❤️ by onData for the open data community
+Created with ❤️ by [onData](https://ondata.it) for the open data community

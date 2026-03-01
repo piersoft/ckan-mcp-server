@@ -1,5 +1,12 @@
 # LOG
 
+## 2026-03-01
+
+- docs: rewrite README intro — plain-language description, two-path table (local vs hosted), audience statement
+- docs: add MIT license badge to README badge row
+- docs: add "Use it in your favorite tool" section (ChatGPT, Claude Code, Claude Desktop, Gemini CLI, VS Code)
+- docs: backup of previous README saved as README.bak.md
+
 ## 2026-02-28 (v0.4.53)
 
 - feat: new tool `ckan_analyze_datasets` — search + DataStore schema introspection in one call; includes `info.label`/`info.notes` from DataStore Dictionary when available

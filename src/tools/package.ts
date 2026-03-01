@@ -399,6 +399,8 @@ Examples:
   - Date range: { q: "metadata_modified:[2024-01-01T00:00:00Z TO 2024-12-31T23:59:59Z]" }
   - Date math: { q: "metadata_modified:[NOW-6MONTHS TO *]" }
   - Date math (auto-converted): { q: "modified:[NOW-30DAYS TO NOW]" }
+  - Published in 2025 (content date): { fq: "issued:[2025-01-01T00:00:00Z TO 2025-12-31T23:59:59Z]" }
+  - First appeared on portal in 2025: { fq: "metadata_created:[2025-01-01T00:00:00Z TO 2025-12-31T23:59:59Z]" }
   - Recent content (issued w/ fallback): { q: "*:*", content_recent: true, content_recent_days: 180 }
   - Field exists: { q: "organization:* AND num_resources:[1 TO *]" }
   - Boosting: { q: "title:climate^2 OR notes:climate" }
