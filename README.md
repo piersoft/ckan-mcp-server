@@ -35,6 +35,8 @@ Hosted endpoint: `https://ckan-mcp-server.andy-pr.workers.dev/mcp`
 
 [ChatGPT](#chatgpt) | [Claude Desktop](#claude-desktop) | [Claude Code](#claude-code) | [Gemini CLI](#gemini-cli) | [VS Code](#vs-code) | [Codex CLI](#codex-cli)
 
+This server works with any MCP-compatible client. The sections below cover some of the most popular ones — if your tool isn't listed, check its documentation for MCP configuration and use the same endpoint URL or command.
+
 All examples below work with **both** the local installation and the hosted endpoint. Where both options differ, both are shown.
 
 > **Using local installation?** You need to install the server first — see [Run locally](#run-locally).
@@ -43,15 +45,18 @@ All examples below work with **both** the local installation and the hosted endp
 
 > Requires a ChatGPT Plus, Team, or Enterprise plan.
 
-1. Open [chatgpt.com](https://chatgpt.com) and go to **Settings → Connectors**
-2. Click **Add connector** (enable developer mode if prompted)
-3. Enter the endpoint URL:
+1. Open the profile menu and go to **Settings → Apps → Advanced settings**
+2. Enable **Developer mode**
+3. Click **Create app** (top-right)
+4. Fill in the form:
+   - **Name:** CKAN MCP Server
+   - **Description:** Search datasets on CKAN open data portals
+   - **MCP Server URL:** `https://ckan-mcp-server.andy-pr.workers.dev/mcp`
+   - **Authentication:** No Auth
+   - Check the confirmation box, then click **Create**
+5. In a new chat, click **+** → **More** and select **CKAN MCP Server**
 
-```
-https://ckan-mcp-server.andy-pr.workers.dev/mcp
-```
-
-4. Save and start a new conversation — ask ChatGPT to search for datasets on any CKAN portal.
+> For a step-by-step walkthrough with screenshots, see the [full ChatGPT guide](docs/guide/chatgpt/chatgpt_web.md).
 
 ### Claude Desktop
 
