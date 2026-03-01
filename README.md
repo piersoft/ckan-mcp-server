@@ -31,7 +31,7 @@ Hosted endpoint: `https://ckan-mcp-server.andy-pr.workers.dev/mcp`
 
 **License**: MIT — see [LICENSE.txt](LICENSE.txt) for complete details. Third-party notices: [NOTICE.md](NOTICE.md).
 
-![CKAN MCP Server demo](docs/guide/mcp_server_demo.gif)
+![CKAN MCP Server demo](https://raw.githubusercontent.com/ondata/ckan-mcp-server/main/docs/guide/mcp_server_demo.gif)
 
 ---
 
@@ -60,7 +60,7 @@ All examples below work with **both** the local installation and the hosted endp
    - Check the confirmation box, then click **Create**
 5. In a new chat, click **+** → **More** and select **CKAN MCP Server**
 
-> For a step-by-step walkthrough with screenshots, see the [full ChatGPT guide](docs/guide/chatgpt/chatgpt_web.md).
+> For a step-by-step walkthrough with screenshots, see the [full ChatGPT guide](https://github.com/ondata/ckan-mcp-server/blob/main/docs/guide/chatgpt/chatgpt_web.md).
 
 ### Claude Desktop
 
@@ -75,7 +75,7 @@ All examples below work with **both** the local installation and the hosted endp
 5. Open a new chat, click **+**, select **Integrations**, and enable **CKAN MCP Server**
 6. When Claude asks to use a tool, click **Allow** (or **Always allow**)
 
-> For a detailed walkthrough with screenshots, see the [full Claude guide](docs/guide/claude/claude_web.md).
+> For a detailed walkthrough with screenshots, see the [full Claude guide](https://github.com/ondata/ckan-mcp-server/blob/main/docs/guide/claude/claude_web.md).
 
 **Using the hosted endpoint (no install) — via config file:**
 
@@ -731,11 +731,11 @@ curl -s -X POST http://localhost:3001/mcp \
 
 ### Portal View URL Templates
 
-Some CKAN portals expose non-standard web URLs for viewing datasets or organizations. To support those cases, this project ships with [`src/portals.json`](src/portals.json), which maps known portal API URLs (and aliases) to custom view URL templates.
+Some CKAN portals expose non-standard web URLs for viewing datasets or organizations. To support those cases, this project ships with [`src/portals.json`](https://github.com/ondata/ckan-mcp-server/blob/main/src/portals.json), which maps known portal API URLs (and aliases) to custom view URL templates.
 
 When generating a dataset or organization view link, the server:
 
-- matches the `server_url` against `api_url` and `api_url_aliases` in [`src/portals.json`](src/portals.json)
+- matches the `server_url` against `api_url` and `api_url_aliases` in [`src/portals.json`](https://github.com/ondata/ckan-mcp-server/blob/main/src/portals.json)
 - uses the portal-specific `dataset_view_url` / `organization_view_url` template when available
 - falls back to the generic defaults (`{server_url}/dataset/{name}` and `{server_url}/organization/{name}`)
 
