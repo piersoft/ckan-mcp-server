@@ -4,11 +4,16 @@ type PortalSearchConfig = {
   force_text_field?: boolean;
 };
 
+export type HvdConfig = {
+  category_field: string;
+};
+
 type PortalConfig = {
   api_url: string;
   api_url_aliases?: string[];
   api_path?: string;
   search?: PortalSearchConfig;
+  hvd?: HvdConfig;
 };
 
 type PortalDefaults = {
@@ -59,6 +64,11 @@ export function getPortalApiUrlForHostname(hostname: string): string | null {
   });
 
   return portal ? normalizeUrl(portal.api_url) : null;
+}
+
+export function getPortalHvdConfig(serverUrl: string): HvdConfig | null {
+  const portal = getPortalConfig(serverUrl);
+  return portal?.hvd ?? null;
 }
 
 export function getPortalApiPath(serverUrl: string): string {

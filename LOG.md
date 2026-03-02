@@ -2,6 +2,12 @@
 
 ## 2026-03-02
 
+- tools: add HVD note on synthesis queries — when `q=*:*` + org/tag facets (or `rows=0`) on dati.gov.it, auto-fetch real-time HVD count and append EU Reg. 2023/138 note to markdown output
+- portals: add `hvd.category_field` config to dati.gov.it in `portals.json`
+- utils: export `getPortalHvdConfig()` from `portal-config.ts`
+
+## 2026-03-02
+
 - worker: enable Cloudflare Workers Logs (`[observability]` in `wrangler.toml`)
 - worker: log structured JSON for every tool call (tool, server, q, fq, id, sql, etc.)
 

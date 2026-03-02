@@ -8,6 +8,7 @@ import { makeCkanRequest } from "../utils/http.js";
 import { truncateText, formatDate, formatBytes, addDemoFooter } from "../utils/formatting.js";
 import { getDatasetViewUrl } from "../utils/url-generator.js";
 import { resolveSearchQuery, stripAccents, hasAccents, isPlainMultiTermQuery, buildOrQuery } from "../utils/search.js";
+import { getPortalHvdConfig } from "../utils/portal-config.js";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
 type RelevanceWeights = {
@@ -548,6 +549,31 @@ Typical workflow: ckan_package_search → ckan_package_show (get full metadata +
           };
         }
 
+        // HVD note: only on synthesis queries (q=*:* + facets or rows=0) in markdown mode
+        let hvdNote = '';
+        const isSynthesisQuery = (params.q === '*:*' || params.q === undefined) &&
+          (effectiveRows === 0 ||
+            (params.facet_field && params.facet_field.some((f) =>
+              ['organization', 'tags', 'groups', 'res_format'].includes(f)
+            )));
+        if (isSynthesisQuery) {
+          const hvdConfig = getPortalHvdConfig(params.server_url);
+          if (hvdConfig) {
+            try {
+              const hvdResult = await makeCkanRequest<any>(
+                params.server_url,
+                'package_search',
+                { q: `${hvdConfig.category_field}:*`, rows: 0 }
+              );
+              if (hvdResult.count > 0) {
+                hvdNote = `> **High Value Datasets (HVD)**: This portal contains **${hvdResult.count} datasets** classified as High Value Datasets under EU Regulation 2023/138.\n\n`;
+              }
+            } catch {
+              // silently skip if HVD query fails
+            }
+          }
+        }
+
         // Markdown format
         let markdown = `# CKAN Package Search Results
 
@@ -560,7 +586,7 @@ ${params.fq ? `**Filter**: ${params.fq}\n` : ''}
 **Total Results**: ${result.count}
 **Showing**: ${result.results.length} results (from ${effectiveStart})
 
-`;
+${hvdNote}`;
 
         // Show facets if available
         if (result.facets && Object.keys(result.facets).length > 0) {
