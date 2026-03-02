@@ -1,5 +1,10 @@
 # LOG
 
+## 2026-03-02
+
+- worker: enable Cloudflare Workers Logs (`[observability]` in `wrangler.toml`)
+- worker: add `console.log` for tool calls (tool name, server URL, query)
+
 ## 2026-03-02 (v0.4.57)
 
 - portals: add `data.stadt-zuerich.ch` (City of Zurich) with custom `organization_view_url` pointing to CKAN backend

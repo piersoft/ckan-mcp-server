@@ -236,6 +236,16 @@ export default {
     // MCP protocol endpoint - delegate to transport
     if (url.pathname === '/mcp') {
       try {
+        // Clone request to read body for logging without consuming it
+        const clonedRequest = request.clone();
+        try {
+          const body = await clonedRequest.json() as { method?: string; params?: { name?: string; arguments?: Record<string, unknown> } };
+          if (body?.method === 'tools/call' && body?.params?.name) {
+            const args = body.params.arguments ?? {};
+            console.log(`tool=${body.params.name} server=${args['server_url'] ?? ''} q=${args['q'] ?? args['name'] ?? ''}`);
+          }
+        } catch { /* ignore parse errors (e.g. non-JSON requests) */ }
+
         const response = await transport.handleRequest(request);
 
         // Add CORS headers and service notices
