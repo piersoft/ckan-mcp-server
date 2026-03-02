@@ -762,6 +762,8 @@ ckan_package_search({
 })
 ```
 
+**LLM uses external data when no results are found** — when a tool returns no results, some LLMs (e.g. ChatGPT) may supplement the answer with information from their training data without warning. This is a known LLM behavior, not a server issue. To avoid it, instruct the model in your system prompt to only use data returned by the MCP tools and not rely on external sources.
+
 ---
 
 ## 🆘 Support
