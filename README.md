@@ -31,7 +31,7 @@ Hosted endpoint: `https://ckan-mcp-server.andy-pr.workers.dev/mcp`
 
 **License**: MIT — see [LICENSE.txt](LICENSE.txt) for complete details. Third-party notices: [NOTICE.md](NOTICE.md).
 
-![CKAN MCP Server demo](https://raw.githubusercontent.com/ondata/ckan-mcp-server/main/docs/guide/mcp_server_demo.gif)
+![CKAN MCP Server demo](docs/guide/mcp_server_demo.gif)
 
 ---
 
@@ -731,11 +731,11 @@ curl -s -X POST http://localhost:3001/mcp \
 
 ### Portal View URL Templates
 
-Some CKAN portals expose non-standard web URLs for viewing datasets or organizations. To support those cases, this project ships with [`src/portals.json`](https://github.com/ondata/ckan-mcp-server/blob/main/src/portals.json), which maps known portal API URLs (and aliases) to custom view URL templates.
+Some CKAN portals expose non-standard web URLs for viewing datasets or organizations. To support those cases, this project ships with [`src/portals.json`](src/portals.json), which maps known portal API URLs (and aliases) to custom view URL templates.
 
 When generating a dataset or organization view link, the server:
 
-- matches the `server_url` against `api_url` and `api_url_aliases` in [`src/portals.json`](https://github.com/ondata/ckan-mcp-server/blob/main/src/portals.json)
+- matches the `server_url` against `api_url` and `api_url_aliases` in [`src/portals.json`](src/portals.json)
 - uses the portal-specific `dataset_view_url` / `organization_view_url` template when available
 - falls back to the generic defaults (`{server_url}/dataset/{name}` and `{server_url}/organization/{name}`)
 
