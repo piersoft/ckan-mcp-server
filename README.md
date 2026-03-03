@@ -64,12 +64,6 @@ All examples below work with **both** the local installation and the hosted endp
 
 ### Claude Desktop
 
-**One-click install (Desktop Extension):** *(macOS and Windows only)*
-
-1. [Download `ckan-mcp-server.dxt`](https://github.com/ondata/ckan-mcp-server/releases/latest/download/ckan-mcp-server.dxt)
-2. Double-click the file — Claude Desktop installs and configures it automatically
-3. Open a new chat, click **+**, select **Integrations**, and enable **CKAN MCP Server**
-
 **Using the hosted endpoint (no install) — via connector UI:**
 
 1. Open Claude Desktop and go to **Settings → Integrations**
