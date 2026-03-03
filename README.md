@@ -417,6 +417,18 @@ Some examples of supported portals:
 - 🇬🇧 **https://data.gov.uk** - United Kingdom Open Data
 - And many more portals worldwide
 
+### Discover CKAN portals worldwide
+
+[**Datashades.info/portals**](https://datashades.info/portals) maintains a live registry of ~950 CKAN portals from around the world, with metadata on version, plugins, dataset counts, and geographic coordinates.
+
+The portal data is available as a public JSON API — no authentication required:
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET https://datashades.info/api/portal/list` | Full list of portals with CKAN version, plugins, dataset/resource/organization counts, and country coordinates |
+| `GET https://datashades.info/api/portal/stats` | Aggregate statistics across all monitored portals |
+| `GET https://datashades.info/api/portal/historical/stats` | Historical trend data for the monitored portals |
+
 ---
 
 ## 🔍 Advanced Solr Queries
