@@ -332,6 +332,61 @@ const baseUrl = '/ckan-mcp-server';
             </div>
           </div>
 
+          <!-- One-click install DXT -->
+          <div class="bg-white border-2 border-gray-200 overflow-hidden">
+            <div class="px-6 pt-5 pb-2">
+              <div class="mono text-xs font-medium tracking-widest uppercase text-data-blue mb-3">Claude Desktop only</div>
+            </div>
+            <div class="px-6 pb-6 flex flex-col sm:flex-row sm:items-start gap-5">
+              <!-- Install dialog preview -->
+              <div class="flex-1 bg-gray-50 border border-gray-200 p-5 rounded-sm">
+                <div class="flex items-start gap-4 mb-4 pb-4 border-b border-gray-200">
+                  <img src={`${baseUrl}/favicon-192.png`} alt="CKAN MCP Server icon" class="w-12 h-12 rounded-xl flex-shrink-0" />
+                  <div class="flex-1 min-w-0">
+                    <h4 class="display-font text-lg font-semibold text-navy leading-tight">CKAN MCP Server</h4>
+                    <p class="text-xs text-gray-500 mt-0.5">Explore open data portals based on CKAN (dati.gov.it, data.gov, data.europa.eu, …)</p>
+                  </div>
+                  <a
+                    href="https://github.com/ondata/ckan-mcp-server/releases/latest/download/ckan-mcp-server.dxt"
+                    class="flex-shrink-0 bg-navy text-white text-sm font-semibold px-4 py-2 hover:bg-data-blue transition-colors duration-200"
+                  >
+                    Install
+                  </a>
+                </div>
+                <p class="text-sm text-gray-600 leading-relaxed mb-4">
+                  MCP server for interacting with CKAN-based open data portals. Provides tools for advanced dataset search with Solr syntax, DataStore queries for tabular data analysis, organization and group exploration, and complete metadata access.
+                </p>
+                <div>
+                  <p class="text-sm font-semibold text-gray-700 mb-1">
+                    Developed by <a href="https://github.com/ondata" target="_blank" rel="noopener noreferrer" class="text-data-blue hover:underline">ondata ↗</a>
+                  </p>
+                  <p class="text-xs text-gray-400 leading-relaxed">Only use extensions from developers you trust. Anthropic does not control which tools developers make available.</p>
+                </div>
+              </div>
+              <!-- Instructions -->
+              <div class="sm:w-48 flex-shrink-0 flex flex-col gap-4 justify-center">
+                <div>
+                  <div class="mono text-xs text-gray-400 mb-1 uppercase tracking-wider">Step 1</div>
+                  <a
+                    href="https://github.com/ondata/ckan-mcp-server/releases/latest/download/ckan-mcp-server.dxt"
+                    class="inline-flex items-center gap-2 text-data-blue font-semibold text-sm hover:underline"
+                  >
+                    ↓ Download .dxt
+                  </a>
+                </div>
+                <div>
+                  <div class="mono text-xs text-gray-400 mb-1 uppercase tracking-wider">Step 2</div>
+                  <p class="text-sm text-gray-700 font-medium">Double-click the file</p>
+                  <p class="text-xs text-gray-500 mt-0.5">Claude Desktop installs and configures automatically</p>
+                </div>
+                <div>
+                  <div class="mono text-xs text-gray-400 mb-1 uppercase tracking-wider">Step 3</div>
+                  <p class="text-sm text-gray-700 font-medium">Start chatting</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Claude Desktop (local install) -->
           <div class="relative bg-white border border-gray-200 overflow-hidden">
             <div class="absolute top-0 left-0 w-1 h-full bg-gradient-to-b from-data-blue to-teal"></div>
