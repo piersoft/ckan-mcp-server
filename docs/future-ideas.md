@@ -337,6 +337,85 @@ Monthly visits and downloads for datasets/resources. CKAN has `tracking_summary`
 
 ---
 
+## Cloudflare Worker Telemetry Archiver (2026-03-03)
+
+Script Python per scaricare e archiviare in JSONL gli eventi di telemetria del Worker Cloudflare.
+Usa l'API Observability di Cloudflare con paginazione e stato tra esecuzioni.
+
+**File di riferimento**: `tmp/worker_telemetry_archiver.py`
+
+```python
+import requests, json, time
+from datetime import datetime
+from pathlib import Path
+
+ACCOUNT_ID = "c89b6bdafbbb793bf64cfa3b271fa5a4"
+API_TOKEN = "TUO_API_TOKEN"  # crea da dash.cloudflare.com/profile/api-tokens
+OUTPUT_FILE = "worker_events.jsonl"
+STATE_FILE = "last_run.json"
+
+def get_last_run():
+    if Path(STATE_FILE).exists():
+        with open(STATE_FILE) as f:
+            return json.load(f)["last_run_ts"]
+    return int(time.time()) - 86400  # Prima esecuzione: ultime 24 ore
+
+def save_last_run(ts):
+    with open(STATE_FILE, "w") as f:
+        json.dump({"last_run_ts": ts}, f)
+
+def fetch_events(from_ts, to_ts):
+    url = f"https://api1.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/workers/observability/telemetry/query"
+    headers = {"Authorization": f"Bearer {API_TOKEN}", "Content-Type": "application/json"}
+    all_events, offset = [], None
+    while True:
+        body = {
+            "timeframe": {"from": from_ts, "to": to_ts},
+            "view": "events",
+            "limit": 2000,
+            "parameters": {
+                "filters": [{"key": "$metadata.type", "operation": "eq", "value": "cf-worker"}],
+                "filterCombination": "and",
+                "orderBy": {"value": "timestamp", "order": "asc"}
+            }
+        }
+        if offset:
+            body["offset"] = offset
+        resp = requests.post(url, headers=headers, json=body)
+        resp.raise_for_status()
+        data = resp.json()
+        events = data.get("result", {}).get("events", [])
+        all_events.extend(events)
+        next_offset = data.get("result", {}).get("nextOffset")
+        if not next_offset or len(events) == 0:
+            break
+        offset = next_offset
+    return all_events
+
+def run():
+    now_ts = int(time.time())
+    from_ts = get_last_run()
+    events = fetch_events(from_ts, now_ts)
+    if events:
+        with open(OUTPUT_FILE, "a") as f:
+            for event in events:
+                f.write(json.dumps(event) + "\n")
+    save_last_run(now_ts)
+
+if __name__ == "__main__":
+    while True:
+        run()
+        time.sleep(86400)
+```
+
+**Note**:
+- Endpoint: `https://api1.cloudflare.com/client/v4/accounts/{ACCOUNT_ID}/workers/observability/telemetry/query`
+- Token: crea da `dash.cloudflare.com/profile/api-tokens` con permesso `Workers Observability`
+- Salva stato in `last_run.json` per evitare duplicati tra esecuzioni
+- Output JSONL: un evento per riga, facilmente analizzabile con `duckdb` o `jq`
+
+---
+
 ## Backlog Priority
 
 1. ~~**High**: MCP Resource Templates~~ ✅ Done (v0.3.0)
