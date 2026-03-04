@@ -1,5 +1,9 @@
 # LOG
 
+## 2026-03-04
+
+- fix(http): add AbortController 30s timeout to Workers fetch — prevents hang when CKAN server is slow (root cause of Worker timeout errors)
+
 ## 2026-03-03 (v0.4.59)
 
 - packaging: add DXT one-click install support — `manifest.json` + `npm run pack:dxt` script produces `ckan-mcp-server.dxt` for Claude Desktop

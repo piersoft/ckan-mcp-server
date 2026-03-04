@@ -242,15 +242,23 @@ export async function makeCkanRequest<T>(
       const fetchUrl = searchParams.toString()
         ? `${url}?${searchParams.toString()}`
         : url;
-      const response = await fetch(fetchUrl, {
-        method: "GET",
-        headers: {
-          Accept: "application/json, text/plain, */*",
-          "Accept-Encoding": "identity",
-          "User-Agent":
-            "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
-        }
-      });
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      let response: Response;
+      try {
+        response = await fetch(fetchUrl, {
+          method: "GET",
+          signal: controller.signal,
+          headers: {
+            Accept: "application/json, text/plain, */*",
+            "Accept-Encoding": "identity",
+            "User-Agent":
+              "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+          }
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
 
       if (!response.ok) {
         throw new Error(`CKAN API error (${response.status}): ${response.statusText}`);
