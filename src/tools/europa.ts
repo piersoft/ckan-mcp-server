@@ -6,6 +6,7 @@ import { z } from "zod";
 import { ResponseFormat, ResponseFormatSchema } from "../types.js";
 import type { EuropaMultilingualField, EuropaDataset } from "../types.js";
 import { makeEuropaSearchRequest } from "../utils/europa-http.js";
+import type { EuropaFacet } from "../utils/europa-http.js";
 import { truncateText, formatDate, addDemoFooter } from "../utils/formatting.js";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
@@ -178,6 +179,47 @@ export function renderEuropaSearchMarkdown(
   return md;
 }
 
+const MAX_FACET_ITEMS = 15;
+
+/**
+ * Render facets as markdown tables
+ */
+export function renderFacetsMarkdown(facets: EuropaFacet[]): string {
+  if (!facets || facets.length === 0) return "";
+
+  let md = `## Facets\n\n`;
+  for (const facet of facets) {
+    if (!facet.items || facet.items.length === 0) continue;
+    const sorted = [...facet.items].sort((a, b) => b.count - a.count);
+    const items = sorted.slice(0, MAX_FACET_ITEMS);
+    md += `### ${facet.title || facet.id}\n\n`;
+    md += `| Value | Count |\n|---|---:|\n`;
+    for (const item of items) {
+      md += `| ${item.title || item.id} | ${item.count} |\n`;
+    }
+    if (sorted.length > MAX_FACET_ITEMS) {
+      md += `| ... and ${sorted.length - MAX_FACET_ITEMS} more | |\n`;
+    }
+    md += `\n`;
+  }
+  return md;
+}
+
+/**
+ * Convert facets array to compact JSON object keyed by facet id
+ */
+export function facetsToCompactJson(facets: EuropaFacet[]): Record<string, { id: string; title: string; count: number }[]> {
+  const result: Record<string, { id: string; title: string; count: number }[]> = {};
+  for (const facet of facets) {
+    if (!facet.items || facet.items.length === 0) continue;
+    result[facet.id] = facet.items
+      .sort((a, b) => b.count - a.count)
+      .slice(0, MAX_FACET_ITEMS)
+      .map((item) => ({ id: item.id, title: item.title, count: item.count }));
+  }
+  return result;
+}
+
 export function registerEuropaTools(server: McpServer) {
   server.registerTool(
     "europa_dataset_search",
@@ -190,6 +232,7 @@ This is NOT a CKAN portal. Use this tool specifically for EU-wide open data disc
 Args:
   - q (string): Search query
   - country (string[]): ISO 3166-1 alpha-2 country codes (e.g., ["IT", "DE"])
+  - is_hvd (boolean): Filter only High Value Datasets
   - lang (string): Language for multilingual fields (default "en")
   - sort (enum): Sort by "relevance", "issued", "modified", "title"
   - order (enum): Sort direction "asc" or "desc" (default "desc")
@@ -200,7 +243,8 @@ Args:
 Examples:
   - { q: "environment", country: ["IT"], page_size: 5 }
   - { q: "transport", sort: "modified", order: "desc" }
-  - { q: "health data", lang: "it" }`,
+  - { q: "health data", lang: "it" }
+  - { q: "transport", is_hvd: true }`,
       inputSchema: z.object({
         q: z.string()
           .min(1)
@@ -208,6 +252,9 @@ Examples:
         country: z.array(z.string().length(2))
           .optional()
           .describe("ISO 3166-1 alpha-2 country codes"),
+        is_hvd: z.boolean()
+          .optional()
+          .describe("Filter only High Value Datasets (HVD)"),
         lang: z.string()
           .optional()
           .default("en")
@@ -243,9 +290,12 @@ Examples:
     },
     async (params) => {
       try {
-        const facets: Record<string, string[]> = {};
+        const filterFacets: Record<string, string[]> = {};
         if (params.country && params.country.length > 0) {
-          facets.country = params.country.map((c) => c.toLowerCase());
+          filterFacets.country = params.country.map((c) => c.toLowerCase());
+        }
+        if (params.is_hvd) {
+          filterFacets.is_hvd = ["true"];
         }
 
         let sortParam: string | undefined;
@@ -253,11 +303,11 @@ Examples:
           sortParam = `${params.sort}+${params.order}`;
         }
 
-        const { count, results } = await makeEuropaSearchRequest({
+        const { count, results, facets } = await makeEuropaSearchRequest({
           q: params.q,
           page: params.page - 1,
           limit: params.page_size,
-          facets: Object.keys(facets).length > 0 ? facets : undefined,
+          facets: Object.keys(filterFacets).length > 0 ? filterFacets : undefined,
           sort: sortParam
         });
 
@@ -280,21 +330,24 @@ Examples:
               distributions: dists.slice(0, 3)
             };
           });
+          const compactFacets = facetsToCompactJson(facets);
           return {
             content: [{
               type: "text",
-              text: truncateText(JSON.stringify({ count, results: filtered }, null, 2))
+              text: truncateText(JSON.stringify({ count, results: filtered, facets: compactFacets }, null, 2))
             }]
           };
         }
 
-        const markdown = renderEuropaSearchMarkdown(results, count, {
+        let markdown = renderEuropaSearchMarkdown(results, count, {
           q: params.q,
           country: params.country,
           lang: params.lang,
           page: params.page,
           page_size: params.page_size
         });
+
+        markdown += renderFacetsMarkdown(facets);
 
         return {
           content: [{ type: "text", text: truncateText(addDemoFooter(markdown)) }]

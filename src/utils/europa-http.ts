@@ -15,9 +15,22 @@ export interface EuropaSearchParams {
   sort?: string;
 }
 
+export interface EuropaFacetItem {
+  id: string;
+  title: string;
+  count: number;
+}
+
+export interface EuropaFacet {
+  id: string;
+  title: string;
+  items: EuropaFacetItem[];
+}
+
 export interface EuropaSearchResult {
   count: number;
   results: EuropaDataset[];
+  facets: EuropaFacet[];
 }
 
 export async function makeEuropaSearchRequest(
@@ -74,9 +87,10 @@ export async function makeEuropaSearchRequest(
     }
   }
 
-  const envelope = data as { result?: { count?: number; results?: EuropaDataset[] } };
+  const envelope = data as { result?: { count?: number; results?: EuropaDataset[]; facets?: EuropaFacet[] } };
   return {
     count: envelope?.result?.count ?? 0,
-    results: envelope?.result?.results ?? []
+    results: envelope?.result?.results ?? [],
+    facets: envelope?.result?.facets ?? []
   };
 }
