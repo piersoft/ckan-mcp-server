@@ -4,6 +4,7 @@
 
 - feat: expose Europa API facets in `europa_dataset_search` — country, format, categories, and 15 more facet types now rendered as tables (markdown) and compact objects (JSON, top 15 items per facet)
 - feat: add `is_hvd` boolean filter to `europa_dataset_search` — search only among High Value Datasets
+- refactor: filter Europa facets to 8 useful ones (country, categories, format, is_hvd, scoring, language, subject, hvdCategory), resolve multilingual titles to requested lang, JSON output 52KB→12KB
 - feat: compact JSON output for heavy tools — `package_search`, `package_show`, `organization_list/show`, `group_list/show`, `datastore_search/search_sql` now return only essential fields in JSON mode (~70% token reduction)
 - feat: `truncateJson()` — JSON-safe truncation that shrinks arrays instead of cutting mid-string, always produces valid JSON
 - fix: filter `_id` field from datastore JSON output (already done in markdown)

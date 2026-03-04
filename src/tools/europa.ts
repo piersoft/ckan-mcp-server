@@ -6,7 +6,7 @@ import { z } from "zod";
 import { ResponseFormat, ResponseFormatSchema } from "../types.js";
 import type { EuropaMultilingualField, EuropaDataset } from "../types.js";
 import { makeEuropaSearchRequest } from "../utils/europa-http.js";
-import type { EuropaFacet } from "../utils/europa-http.js";
+import type { EuropaFacet, EuropaRawFacet } from "../utils/europa-http.js";
 import { truncateText, formatDate, addDemoFooter } from "../utils/formatting.js";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
@@ -181,6 +181,45 @@ export function renderEuropaSearchMarkdown(
 
 const MAX_FACET_ITEMS = 15;
 
+/** Facets to keep in output (others are discarded) */
+const ALLOWED_FACETS = new Set([
+  "country", "categories", "format", "is_hvd",
+  "scoring", "language", "subject", "hvdCategory"
+]);
+
+/**
+ * Resolve a raw facet title (string or multilingual object) to a single string
+ */
+function resolveFacetTitle(
+  title: string | Record<string, string>,
+  lang: string
+): string {
+  if (typeof title === "string") return title;
+  return title[lang] || title["en"] || Object.values(title)[0] || "";
+}
+
+/**
+ * Filter and normalize raw API facets: keep only allowed facets,
+ * resolve multilingual titles, cap items.
+ */
+export function resolveRawFacets(rawFacets: EuropaRawFacet[], lang: string): EuropaFacet[] {
+  const result: EuropaFacet[] = [];
+  for (const raw of rawFacets) {
+    if (!ALLOWED_FACETS.has(raw.id)) continue;
+    if (!raw.items || raw.items.length === 0) continue;
+    const items = raw.items
+      .sort((a, b) => b.count - a.count)
+      .slice(0, MAX_FACET_ITEMS)
+      .map((item) => ({
+        id: item.id,
+        title: resolveFacetTitle(item.title, lang),
+        count: item.count
+      }));
+    result.push({ id: raw.id, title: raw.title, items });
+  }
+  return result;
+}
+
 /**
  * Render facets as markdown tables
  */
@@ -190,15 +229,10 @@ export function renderFacetsMarkdown(facets: EuropaFacet[]): string {
   let md = `## Facets\n\n`;
   for (const facet of facets) {
     if (!facet.items || facet.items.length === 0) continue;
-    const sorted = [...facet.items].sort((a, b) => b.count - a.count);
-    const items = sorted.slice(0, MAX_FACET_ITEMS);
     md += `### ${facet.title || facet.id}\n\n`;
     md += `| Value | Count |\n|---|---:|\n`;
-    for (const item of items) {
+    for (const item of facet.items) {
       md += `| ${item.title || item.id} | ${item.count} |\n`;
-    }
-    if (sorted.length > MAX_FACET_ITEMS) {
-      md += `| ... and ${sorted.length - MAX_FACET_ITEMS} more | |\n`;
     }
     md += `\n`;
   }
@@ -212,10 +246,9 @@ export function facetsToCompactJson(facets: EuropaFacet[]): Record<string, { id:
   const result: Record<string, { id: string; title: string; count: number }[]> = {};
   for (const facet of facets) {
     if (!facet.items || facet.items.length === 0) continue;
-    result[facet.id] = facet.items
-      .sort((a, b) => b.count - a.count)
-      .slice(0, MAX_FACET_ITEMS)
-      .map((item) => ({ id: item.id, title: item.title, count: item.count }));
+    result[facet.id] = facet.items.map((item) => ({
+      id: item.id, title: item.title, count: item.count
+    }));
   }
   return result;
 }
@@ -303,13 +336,15 @@ Examples:
           sortParam = `${params.sort}+${params.order}`;
         }
 
-        const { count, results, facets } = await makeEuropaSearchRequest({
+        const { count, results, rawFacets } = await makeEuropaSearchRequest({
           q: params.q,
           page: params.page - 1,
           limit: params.page_size,
           facets: Object.keys(filterFacets).length > 0 ? filterFacets : undefined,
           sort: sortParam
         });
+
+        const facets = resolveRawFacets(rawFacets, params.lang);
 
         if (params.response_format === ResponseFormat.JSON) {
           // Compact JSON: single language, truncated description, limited distributions
