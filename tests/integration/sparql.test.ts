@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { formatSparqlMarkdown, formatSparqlJson, querySparqlEndpoint } from '../../src/tools/sparql';
+import { formatSparqlMarkdown, formatSparqlJson, querySparqlEndpoint, validateSelectQuery, injectLimit } from '../../src/tools/sparql';
 
 describe('sparql_query', () => {
   beforeEach(() => {
@@ -116,6 +116,58 @@ describe('sparql_query', () => {
       const md = formatSparqlMarkdown(data, 'https://example.com/sparql');
 
       expect(md).toContain('| only-a |  |');
+    });
+  });
+
+  describe('validateSelectQuery', () => {
+    it('accepts a plain SELECT query', () => {
+      expect(() => validateSelectQuery('SELECT ?s WHERE { ?s ?p ?o }')).not.toThrow();
+    });
+
+    it('accepts SELECT with PREFIX declarations before it', () => {
+      expect(() => validateSelectQuery('PREFIX ex: <http://example.org/>\nSELECT ?s WHERE { }')).not.toThrow();
+    });
+
+    it('accepts SELECT case-insensitively', () => {
+      expect(() => validateSelectQuery('select ?s where { }')).not.toThrow();
+    });
+
+    it('rejects a CONSTRUCT query', () => {
+      expect(() => validateSelectQuery('CONSTRUCT { ?s ?p ?o } WHERE { ?s ?p ?o }')).toThrow('Only SELECT queries are supported');
+    });
+
+    it('rejects an ASK query', () => {
+      expect(() => validateSelectQuery('ASK { ?s ?p ?o }')).toThrow('Only SELECT queries are supported');
+    });
+
+    it('rejects a query with no keyword', () => {
+      expect(() => validateSelectQuery('{ ?s ?p ?o }')).toThrow('Only SELECT queries are supported');
+    });
+
+    it('ignores SELECT in a comment', () => {
+      expect(() => validateSelectQuery('# SELECT ?s WHERE { }\nCONSTRUCT { } WHERE { }')).toThrow('Only SELECT queries are supported');
+    });
+  });
+
+  describe('injectLimit', () => {
+    it('appends LIMIT when not present', () => {
+      const result = injectLimit('SELECT ?s WHERE { ?s ?p ?o }', 50);
+      expect(result).toContain('LIMIT 50');
+    });
+
+    it('does not inject LIMIT when already present', () => {
+      const query = 'SELECT ?s WHERE { ?s ?p ?o } LIMIT 10';
+      expect(injectLimit(query, 50)).toBe(query);
+    });
+
+    it('detects LIMIT case-insensitively', () => {
+      const query = 'SELECT ?s WHERE { ?s ?p ?o } limit 5';
+      expect(injectLimit(query, 50)).toBe(query);
+    });
+
+    it('trims trailing whitespace before appending LIMIT', () => {
+      const result = injectLimit('SELECT ?s WHERE { ?s ?p ?o }   ', 100);
+      expect(result).toMatch(/\}\nLIMIT 100$/);
     });
   });
 

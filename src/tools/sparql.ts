@@ -3,8 +3,11 @@
  */
 
 import { z } from "zod";
-import { ResponseFormatSchema, ResponseFormat } from "../types.js";
+import { ResponseFormatSchema, ResponseFormat, CHARACTER_LIMIT } from "../types.js";
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+
+const DEFAULT_LIMIT = 25;
+const MAX_LIMIT = 1000;
 
 interface SparqlBinding {
   type: string;
@@ -16,6 +19,27 @@ interface SparqlBinding {
 interface SparqlResults {
   head: { vars: string[] };
   results: { bindings: Record<string, SparqlBinding>[] };
+}
+
+/**
+ * Validates that the query is a SELECT statement.
+ * Throws if it contains write operations or no SELECT keyword.
+ */
+export function validateSelectQuery(query: string): void {
+  const stripped = query.replace(/#[^\n]*/g, "");
+  if (!/\bSELECT\b/i.test(stripped)) {
+    throw new Error(
+      "Only SELECT queries are supported (not CONSTRUCT, ASK, DESCRIBE, or write operations)."
+    );
+  }
+}
+
+/**
+ * Appends LIMIT to query if not already present (case-insensitive check).
+ */
+export function injectLimit(query: string, limit: number): string {
+  if (/\bLIMIT\b/i.test(query)) return query;
+  return `${query.trimEnd()}\nLIMIT ${limit}`;
 }
 
 export async function querySparqlEndpoint(endpointUrl: string, query: string): Promise<SparqlResults> {
@@ -77,7 +101,7 @@ export function formatSparqlMarkdown(data: SparqlResults, endpointUrl: string): 
   return md;
 }
 
-export function formatSparqlJson(data: SparqlResults): object {
+export function formatSparqlJson(data: SparqlResults): { count: number; columns: string[]; rows: Record<string, string>[] } {
   const vars = data.head.vars;
   const rows = data.results.bindings.map(row => {
     const obj: Record<string, string> = {};
@@ -105,9 +129,12 @@ Useful for querying open data portals and knowledge graphs that expose SPARQL en
 Only HTTPS endpoints are allowed. Queries timeout after 15 seconds.
 Only SELECT queries are supported (read-only).
 
+If the query does not contain a LIMIT clause, one is injected automatically (default: ${DEFAULT_LIMIT}, max: ${MAX_LIMIT}).
+
 Args:
   - endpoint_url (string): HTTPS URL of the SPARQL endpoint
   - query (string): SPARQL SELECT query to execute
+  - limit (number): Max rows to return (default: ${DEFAULT_LIMIT}). Ignored if query already contains LIMIT.
   - response_format ('markdown' | 'json'): Output format
 
 Examples:
@@ -119,6 +146,8 @@ Typical workflow: sparql_query (explore schema) → sparql_query (targeted query
       inputSchema: z.object({
         endpoint_url: z.string().url().describe("HTTPS URL of the SPARQL endpoint"),
         query: z.string().min(1).describe("SPARQL SELECT query to execute"),
+        limit: z.number().int().min(1).max(MAX_LIMIT).default(DEFAULT_LIMIT)
+          .describe(`Max rows to return (default: ${DEFAULT_LIMIT}, max: ${MAX_LIMIT}). Injected as SPARQL LIMIT if not already present in query.`),
         response_format: ResponseFormatSchema
       }).strict(),
       annotations: {
@@ -130,18 +159,27 @@ Typical workflow: sparql_query (explore schema) → sparql_query (targeted query
     },
     async (params) => {
       try {
-        const data = await querySparqlEndpoint(params.endpoint_url, params.query);
+        validateSelectQuery(params.query);
+        const limitedQuery = injectLimit(params.query, params.limit);
+        const data = await querySparqlEndpoint(params.endpoint_url, limitedQuery);
 
         if (params.response_format === ResponseFormat.JSON) {
+          const result = formatSparqlJson(data);
+          let text = JSON.stringify(result, null, 2);
+          if (text.length > CHARACTER_LIMIT) {
+            text = text.slice(0, CHARACTER_LIMIT) + "\n/* output truncated */";
+          }
           return {
-            content: [{ type: "text", text: JSON.stringify(formatSparqlJson(data), null, 2) }],
-            structuredContent: formatSparqlJson(data)
+            content: [{ type: "text", text }],
+            structuredContent: result
           };
         }
 
-        return {
-          content: [{ type: "text", text: formatSparqlMarkdown(data, params.endpoint_url) }]
-        };
+        let text = formatSparqlMarkdown(data, params.endpoint_url);
+        if (text.length > CHARACTER_LIMIT) {
+          text = text.slice(0, CHARACTER_LIMIT) + "\n\n_Output truncated._";
+        }
+        return { content: [{ type: "text", text }] };
       } catch (error) {
         return {
           content: [{

@@ -1,5 +1,10 @@
 # LOG
 
+## 2026-03-04 (v0.4.67)
+
+- improve: `sparql_query` — validate SELECT-only, auto-inject LIMIT (default 25, max 1000), truncate output at CHARACTER_LIMIT; +11 tests (310 total)
+- remove: `europa_dataset_search` tool and related files (`src/tools/europa.ts`, `src/utils/europa-http.ts`, Europa types in `src/types.ts`, docs, tests); tool count 19→18
+
 ## 2026-03-04 (v0.4.66)
 
 - feat: add `sparql_query` tool — execute SPARQL SELECT against any public HTTPS endpoint (e.g. data.europa.eu/sparql, DBpedia, Wikidata)
