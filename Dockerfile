@@ -23,8 +23,8 @@ RUN npm ci --omit=dev && npm cache clean --force
 # Copia i file compilati dallo stage di build
 COPY --from=builder /app/dist ./dist
 
-# Copia eventuali asset statici necessari a runtime
-COPY --from=builder /app/src/portals.json ./src/portals.json 2>/dev/null || true
+# Copia eventuali asset statici necessari a runtime (opzionale: il file potrebbe non esistere)
+COPY --from=builder /app/src/portals.jso[n] ./src/
 
 # Variabili d'ambiente con valori di default
 ENV NODE_ENV=production
