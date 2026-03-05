@@ -10,7 +10,7 @@
 const http = require("http");
 const https = require("https");
 
-#CHANGE LOCALHOST WITH IP
+/*CHANGE LOCALHOST WITH IP*/
 const MCP_URL = process.env.MCP_URL || "http://localhost:3000/mcp";
 
 const url = new URL(MCP_URL);
