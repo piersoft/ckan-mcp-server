@@ -26,11 +26,6 @@ cd ckan-mcp-server
 
 # 3. Build and start
 docker compose up --build -d
-
-# 4. Verify the server is running
-curl -s -X POST http://localhost:3000/mcp \
-  -H 'Content-Type: application/json' \
-  -d '{"jsonrpc":"2.0","method":"tools/list","id":1}' | jq .
 ```
 
 The MCP server will be available at `http://localhost:3000/mcp`.
