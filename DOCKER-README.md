@@ -18,7 +18,7 @@ ckan-mcp-server/
 
 ```bash
 # 1. Clone the repo (if you haven't already)
-git clone https://github.com/piersoft/ckan-mcp-server.git
+git clone https://github.com/ondata/ckan-mcp-server.git
 cd ckan-mcp-server
 
 # 2. Copy the Docker files into the repo root
