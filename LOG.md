@@ -1,5 +1,9 @@
 # LOG
 
+## 2026-03-06 (v0.4.74)
+
+- fix: use `z.coerce.number()` for all numeric tool parameters — fixes validation errors when MCP clients pass numbers as strings (closes #16)
+
 ## 2026-03-05 (v0.4.73)
 
 - feat: `package_show` now includes `api_json_url` for dataset and each resource (direct CKAN API JSON link)
