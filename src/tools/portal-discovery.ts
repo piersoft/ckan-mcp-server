@@ -28,6 +28,20 @@ async function fetchPortals(): Promise<DatashadesPortal[]> {
   return resp.data.portals;
 }
 
+function deduplicateByHostname(portals: DatashadesPortal[]): DatashadesPortal[] {
+  const seen = new Map<string, DatashadesPortal>();
+  for (const p of portals) {
+    try {
+      const hostname = new URL(p.Href).hostname;
+      const existing = seen.get(hostname);
+      if (!existing || p.Href.startsWith("https://")) {
+        seen.set(hostname, p);
+      }
+    } catch { /* skip malformed URLs */ }
+  }
+  return Array.from(seen.values());
+}
+
 function filterPortals(
   portals: DatashadesPortal[],
   params: {
@@ -39,13 +53,15 @@ function filterPortals(
     limit: number;
   }
 ): DatashadesPortal[] {
-  return portals
+  const filtered = portals
     .filter(p => p.status === "active" && p.Href)
     .filter(p => !params.country || p.Coordinates.country_name.toLowerCase().includes(params.country.toLowerCase()))
     .filter(p => !params.query || p.SiteInfo.site_title.toLowerCase().includes(params.query.toLowerCase()))
     .filter(p => params.min_datasets === undefined || p.DatasetsNumber >= params.min_datasets)
     .filter(p => !params.language || p.SiteInfo.locale_default.toLowerCase().startsWith(params.language.toLowerCase()))
-    .filter(p => !params.has_datastore || (p.Plugins || []).includes("datastore"))
+    .filter(p => !params.has_datastore || (p.Plugins || []).includes("datastore"));
+
+  return deduplicateByHostname(filtered)
     .sort((a, b) => b.DatasetsNumber - a.DatasetsNumber)
     .slice(0, params.limit);
 }

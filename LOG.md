@@ -2,6 +2,7 @@
 
 ## 2026-03-06 (v0.4.75)
 
+- fix(`ckan_find_portals`): deduplicate portals by hostname, preferring https over http
 - feat: new tool `ckan_find_portals` — discovers CKAN portals from datashades.info registry (~950 portals); filters by country, keyword, min_datasets, language, has_datastore; LLM translates country to English
 
 ## 2026-03-06 (v0.4.74)
