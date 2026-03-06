@@ -30,6 +30,9 @@ jobs:
       - name: Generate flat JSONL
         run: python scripts/worker_telemetry_flatten.py
 
+      - name: Aggregate daily stats
+        run: bash scripts/worker_daily_stats.sh
+
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"

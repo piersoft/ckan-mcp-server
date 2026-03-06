@@ -55,6 +55,30 @@ Flattened log of tool invocations received by the [Cloudflare Workers](https://c
 
 ---
 
+## worker_daily_calls.jsonl
+
+Daily aggregate of tool invocations from the Cloudflare Workers deployment. Fully recomputed from `worker_events_flat.jsonl` on each telemetry update.
+
+**Source**: derived from `worker_events_flat.jsonl`
+**Update**: twice daily (06:00 and 18:00 UTC) via `.github/workflows/update-telemetry.yml`
+**Script**: `scripts/worker_daily_stats.sh`
+
+**Fields**:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `date` | string (YYYY-MM-DD) | Reference date |
+| `calls` | integer | Total tool invocations |
+| `ok` | integer | Successful invocations |
+| `errors` | integer | Failed invocations |
+
+**Example**:
+```json
+{"date":"2026-03-05","calls":280,"ok":280,"errors":0}
+```
+
+---
+
 ## worker_telemetry_last_run.json
 
 Timestamp of the last successful telemetry fetch, used by the archiver script to avoid re-fetching already-collected events.
