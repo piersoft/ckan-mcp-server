@@ -4,13 +4,15 @@ These files allow you to run [ckan-mcp-server](https://github.com/ondata/ckan-mc
 
 ## File Structure
 
-Copy these three files into the root of the repo:
+The following files are included in the repo:
 
 ```
 ckan-mcp-server/
-├── Dockerfile          ← multi-stage build (builder + runtime)
-├── docker-compose.yml  ← orchestration with variables and healthcheck
-├── .dockerignore       ← excludes node_modules, dist, docs, etc.
+├── Dockerfile               ← multi-stage build (builder + runtime)
+├── docker-compose.yml       ← orchestration with variables and healthcheck
+├── docker/
+│   ├── README.md            ← this file
+│   └── ckan-mcp-bridge.js   ← stdio bridge for Claude Desktop
 └── ... (rest of the repo)
 ```
 
@@ -21,10 +23,7 @@ ckan-mcp-server/
 git clone https://github.com/ondata/ckan-mcp-server.git
 cd ckan-mcp-server
 
-# 2. Copy the Docker files into the repo root
-#    (Dockerfile, docker-compose.yml, .dockerignore)
-
-# 3. Build and start
+# 2. Build and start
 docker compose up --build -d
 ```
 
@@ -56,16 +55,15 @@ docker run -d \
 
 ## Configuring Claude Desktop with the Container
 
-Save ckan-mcp-bridge.js (config your local IP if necessary instead localhost in row 14)
-
-Once the container is running, add the following to `claude_desktop_config.json`:
+Once the container is running, add the following to `claude_desktop_config.json`.
+Set `MCP_URL` to point to your Docker host if running on a remote machine.
 
 ```json
 {
   "mcpServers": {
     "ckan": {
       "command": "node",
-      "args": ["/usr/local/bin/ckan-mcp-bridge.js"],
+      "args": ["/path/to/ckan-mcp-server/docker/ckan-mcp-bridge.js"],
       "env": {
         "MCP_URL": "http://localhost:3000/mcp"
       }

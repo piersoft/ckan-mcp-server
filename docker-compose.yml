@@ -11,22 +11,22 @@ services:
       - "3000:3000"
 
     environment:
-      # Modalità di trasporto: "http" per server HTTP, "stdio" per pipe locale
+      # Transport mode: "http" for HTTP server, "stdio" for local pipe
       TRANSPORT: http
       PORT: 3000
       NODE_ENV: production
 
-      # Opzionale: imposta un CKAN portal di default
+      # Optional: set a default CKAN portal
       # CKAN_DEFAULT_SERVER_URL: https://www.dati.gov.it/opendata
 
-    # Limiti di risorse (opzionale, regola in base al tuo host)
+    # Resource limits (optional, adjust to your host)
     deploy:
       resources:
         limits:
           memory: 256M
           cpus: "0.5"
 
-    # Log con rotazione automatica
+    # Automatic log rotation
     logging:
       driver: "json-file"
       options:

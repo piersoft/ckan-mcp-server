@@ -1,16 +1,15 @@
 #!/usr/bin/env node
 /**
- * stdio-bridge.js
- * Wrapper che permette a Claude Desktop (stdio) di parlare
- * con il container ckan-mcp-server (HTTP/SSE).
+ * ckan-mcp-bridge.js
+ * Wrapper that allows Claude Desktop (stdio) to communicate
+ * with the ckan-mcp-server container (HTTP/SSE).
  *
- * Claude Desktop <--stdio--> questo script <--HTTP--> container Docker
+ * Claude Desktop <--stdio--> this script <--HTTP--> Docker container
  */
 
 const http = require("http");
 const https = require("https");
 
-/*CHANGE LOCALHOST WITH IP*/
 const MCP_URL = process.env.MCP_URL || "http://localhost:3000/mcp";
 
 const url = new URL(MCP_URL);
@@ -35,7 +34,7 @@ function sendToServer(body) {
       let raw = "";
       res.on("data", (chunk) => (raw += chunk));
       res.on("end", () => {
-        // Gestisce sia risposte JSON pure che SSE (data: {...})
+        // Handle both plain JSON responses and SSE (data: {...})
         const lines = raw.split("\n");
         for (const line of lines) {
           const trimmed = line.trim();
@@ -54,7 +53,7 @@ function sendToServer(body) {
             } catch {}
           }
         }
-        // Fallback: prova a parsare tutto il body
+        // Fallback: try to parse the entire body
         try {
           resolve(JSON.parse(raw));
         } catch {
@@ -69,13 +68,13 @@ function sendToServer(body) {
   });
 }
 
-// Legge messaggi JSON-RPC da stdin (uno per riga)
+// Read JSON-RPC messages from stdin (one per line)
 let buffer = "";
 process.stdin.setEncoding("utf8");
 process.stdin.on("data", async (chunk) => {
   buffer += chunk;
   const lines = buffer.split("\n");
-  buffer = lines.pop(); // l'ultima riga potrebbe essere incompleta
+  buffer = lines.pop(); // last line may be incomplete
 
   for (const line of lines) {
     const trimmed = line.trim();
@@ -85,7 +84,7 @@ process.stdin.on("data", async (chunk) => {
       const response = await sendToServer(message);
       process.stdout.write(JSON.stringify(response) + "\n");
     } catch (err) {
-      // Invia un errore JSON-RPC valido in caso di problema
+      // Send a valid JSON-RPC error on failure
       const errResponse = {
         jsonrpc: "2.0",
         error: { code: -32603, message: err.message },
