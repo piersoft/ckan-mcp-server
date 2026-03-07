@@ -1,11 +1,15 @@
 ---
 name: ckan-mcp
 description: >
-  MCP server for interacting with CKAN-based open data portals. Search datasets,
-  organizations, resources, and other objects on any CKAN server (dati.gov.it,
-  data.gov, demo.ckan.org, etc.) using natural language.
-  Trigger when: user asks about open data, datasets, portals, data catalogs,
-  or mentions specific data portals by country or name.
+  MCP server for exploring CKAN-based open data portals (dati.gov.it, data.gov,
+  data.gov.uk, open.canada.ca, demo.ckan.org, and any other CKAN instance).
+  Also covers data.europa.eu via its REST API (not CKAN).
+  Use this skill whenever the user: asks about open data, public datasets, or data
+  portals; mentions a country, region, or city in relation to data or statistics;
+  asks about government transparency, public records, or official publications;
+  asks "where can I find data on X", "are there datasets about Y", or "what data
+  does organization Z publish"; needs to search, filter, explore, or analyze any
+  open data catalog; or mentions a known portal by name or URL.
 ---
 
 # CKAN MCP Skill
@@ -34,6 +38,8 @@ User asks about data
   +-- Asks about publishers/groups? -> Flow E (Orgs / Groups)
   |
   +-- Asks about data quality? ------> Flow F (Quality)
+  |
+  +-- Wants best/most relevant? -----> Flow G (Relevance Ranking + Analysis)
 ```
 
 ## Flows
@@ -89,8 +95,11 @@ Example: no national CKAN portal, European country, 0 results on regional portal
 Use when: user provides a specific portal URL or a well-known portal name.
 
 1. `ckan_status_show` to verify the portal
-2. `ckan_package_search(q="TERM_NATIVE OR TERM_EN")`
-3. If >100 results, guide refinement with `fq` filters or a narrower query
+2. _(optional)_ `ckan_catalog_stats` — call this when the user wants a general
+   overview of the portal (total datasets, organizations, tags, formats) before
+   searching, or when they ask "what's on this portal?" / "how big is it?"
+3. `ckan_package_search(q="TERM_NATIVE OR TERM_EN")`
+4. If >100 results, guide refinement with `fq` filters or a narrower query
 
 ```
 Example: "Cerca dati sui trasporti su data.gov.uk"
@@ -163,7 +172,16 @@ Use when: user asks about the content of a specific dataset or wants to query ta
 4. If DataStore is available:
    - `ckan_datastore_search(resource_id=..., limit=0)` — discover columns
    - `ckan_datastore_search(resource_id=..., q=..., limit=100)` — query data
-5. If no DataStore: extract resource URL and offer download / DuckDB analysis
+5. If no DataStore: get the resource URL from the metadata and analyze it directly
+   with DuckDB (works for CSV, JSON, Parquet over HTTP):
+   ```bash
+   duckdb -jsonlines -c "DESCRIBE SELECT * FROM read_csv('URL')"
+   duckdb -jsonlines -c "SUMMARIZE SELECT * FROM read_csv('URL')"
+   duckdb -jsonlines -c "SELECT * FROM read_csv('URL') USING SAMPLE 10"
+   ```
+   For non-CSV formats use `read_json('URL')` or `read_parquet('URL')`.
+   If the resource is not directly queryable (HTML, PDF, zip), provide the
+   download URL and tell the user they need to open it locally.
 
 ```
 Example: "Mostrami i dati del dataset clima-2024"
@@ -197,6 +215,9 @@ ckan_group_show(server_url=..., id="group-name")
 
 Use when: user asks about data quality, MQA score, or metadata completeness.
 
+**Portal scope**: MQA tools currently work only with `dati.gov.it`. Do not
+use them on any other portal — they will return an error or no result.
+
 1. `ckan_get_mqa_quality(dataset_id=..., server_url=...)` — overall score
 2. `ckan_get_mqa_quality_details(dataset_id=..., server_url=...)` — dimension breakdown
 
@@ -206,14 +227,43 @@ Example: "Com'e la qualita dei metadati di questo dataset?"
 -> ckan_get_mqa_quality_details(server_url=..., dataset_id="...")
 ```
 
+### Flow G — Relevance Ranking + Analysis
+
+Use when: user wants the "most relevant" or "best" datasets for a topic, or wants
+to compare and analyze multiple datasets together.
+
+`ckan_package_search` ranks by Solr score, which is good for broad discovery but
+does not re-rank by field importance. Use `ckan_find_relevant_datasets` when the
+user wants results prioritized by how well the title, tags, and description match
+their query — not just keyword hits. Use `ckan_analyze_datasets` when the user
+wants a structured comparison of several datasets (e.g., coverage, formats, publishers).
+
+```
+Example: "Trova i dataset più rilevanti sull'inquinamento dell'aria in Italia"
+-> ckan_find_relevant_datasets(server_url="https://www.dati.gov.it/opendata",
+                               query="inquinamento aria OR air pollution")
+
+Example: "Confronta questi tre dataset sul traffico"
+-> ckan_analyze_datasets(server_url=..., dataset_ids=[...])
+```
+
+**When to prefer over `ckan_package_search`**:
+- User says "most relevant", "best match", "top results"
+- `ckan_package_search` returns many loosely-matched results and you need to surface the closest ones
+- User wants a comparison or summary across multiple datasets
+
 ## Key Rules
 
 ### Query Construction
 
 - Always use bilingual queries: `q="TERM_NATIVE OR TERM_EN"`
+  CKAN portals store metadata in the publisher's native language; many datasets
+  have no English translation, so a single-language query silently misses them.
 - Example: `q="ambiente OR environment OR pollution OR inquinamento"`
 - Use Solr `fq` for hard filters: `fq="organization:regione-toscana"`
 - Wildcard for broad match: `q="trasport*"` (matches trasporto, trasporti, transport...)
+- Use `ckan_tag_list` to discover available tags on a portal before building
+  tag-based filters — then use `fq="tags:TAG"` to narrow results precisely.
 
 **Long OR queries — parser issue**: some portals use a restrictive default parser that silently breaks multi-term `OR` queries (returns 0 results). If a complex `OR` query returns 0, retry with `query_parser: "text"`:
 ```
@@ -289,3 +339,8 @@ fq: "res_format:CSV OR res_format:JSON"
 | `ckan_get_mqa_quality` | MQA overall quality score |
 | `ckan_get_mqa_quality_details` | MQA dimension-by-dimension breakdown |
 | `sparql_query` | SPARQL on data.europa.eu |
+
+## Reference Files
+
+- [`references/europa-api.md`](references/europa-api.md) — Read this for any query involving data.europa.eu: REST API patterns, country filtering, SPARQL examples, EU data themes and country codes.
+- [`references/tools.md`](references/tools.md) — Full `ckanapi` CLI equivalents for every MCP tool, with jq formatting patterns and DuckDB analysis examples. Read this when you need to replicate or extend tool behavior via Bash, or when the user needs to explore CSV resources directly.
