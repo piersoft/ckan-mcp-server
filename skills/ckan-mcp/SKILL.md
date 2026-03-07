@@ -42,7 +42,12 @@ Use when: user mentions a country but no specific portal URL.
    - If it **fails**: tell the user explicitly — e.g. _"The national portal (X) is unreachable or not a valid CKAN instance. Trying alternative portals..."_ — then try the next portals from the list
    - If `ckan_find_portals` returns no national portal: tell the user — e.g. _"No national CKAN portal was found for this country. Searching available regional/local portals..."_
 4. `ckan_package_search(q="TERM_NATIVE OR TERM_EN")` on the first reachable portal
-5. Always summarize which portal was actually used and why (national vs fallback)
+5. If all CKAN portals return 0 results **and** the country is European: fall back to `data.europa.eu` with strict country filter (see references/europa-api.md):
+   ```bash
+   curl "https://data.europa.eu/api/hub/search/search?q=QUERY&filter=dataset&facetOperator=AND&facetGroupOperator=AND&facets=%7B%22country%22%3A%5B%22xx%22%5D%7D&limit=10"
+   ```
+   Country code must be lowercase (e.g. `"pt"`, `"fr"`, `"it"`).
+6. Always summarize which portal was actually used and why (national CKAN / regional CKAN / data.europa.eu fallback)
 
 ```
 Example: "Quali dati sull'inquinamento in Canada?"
@@ -57,6 +62,14 @@ Example: national portal unreachable
 -> ckan_status_show(next_portal) -> OK
 -> ckan_package_search(server_url=next_portal, ...)
 -> [tell user] "Ho trovato risultati sul portale della Provincia di Buenos Aires (non il portale nazionale)."
+
+Example: no national CKAN portal, European country, 0 results on regional portals
+-> ckan_find_portals(country="Portugal") -> 3 regional portals, no national
+-> ckan_package_search on all 3 -> 0 results
+-> [tell user] "Nessun risultato sui portali CKAN portoghesi. Cerco su data.europa.eu..."
+-> Bash: curl "...?q=acidentes+rodoviarios&filter=dataset&facetOperator=AND&facetGroupOperator=AND&facets=%7B%22country%22%3A%5B%22pt%22%5D%7D&limit=10"
+-> 157 results found on data.europa.eu
+-> [tell user] "Trovati 157 dataset su data.europa.eu (filtro paese=PT)."
 ```
 
 ### Flow B — Named Portal
