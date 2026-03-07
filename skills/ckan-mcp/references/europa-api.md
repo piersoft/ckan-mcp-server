@@ -24,32 +24,39 @@ GET https://data.europa.eu/api/hub/search/search?q=QUERY&...
 | Parameter | Description | Example |
 |-----------|-------------|---------|
 | `q` | Full-text query | `q=pollution` |
-| `country` | ISO country code(s), comma-separated | `country=IT` or `country=IT,ES` |
+| `filter` | Document type filter | `filter=dataset` |
+| `facets` | JSON object for filtering by facets (see below) | `facets={"country":["pt"]}` |
+| `facetOperator` | How facets within a group combine (`AND`/`OR`) | `facetOperator=AND` |
+| `facetGroupOperator` | How facet groups combine (`AND`/`OR`) | `facetGroupOperator=AND` |
 | `lang` | Language preference | `lang=it` |
-| `page` | Page number (1-based) | `page=1` |
-| `limit` | Results per page (max 100) | `limit=10` |
-| `sort` | Sort order | `sort=relevance` or `sort=issued+desc` |
-| `facets` | Comma-separated facet names | `facets=country,catalog,theme` |
-| `theme` | EU data theme URI | `theme=http://publications.europa.eu/resource/authority/data-theme/ENVI` |
-| `catalog` | Filter by catalog ID | `catalog=dati-gov-it` |
+| `page` | Page number (0-based) | `page=0` |
+| `limit` | Results per page (max 1000) | `limit=10` |
+| `sort` | Sort order | `sort=relevance+desc` or `sort=issued+desc` |
 
-### Examples
+### Strict Country Filtering — CRITICAL
+
+**`country=XX` is NOT a documented parameter** — it affects relevance ranking only, does NOT strictly filter results.
+
+The correct way to filter by country requires three parameters together:
+- `facets={"country":["xx"]}` (lowercase ISO code)
+- `facetOperator=AND`
+- `facetGroupOperator=AND`
+
+Without the AND operators, `facets` is silently ignored and results come from all countries.
+This was discovered by intercepting the actual UI API calls — not documented officially.
 
 ```bash
-# Multi-country search (Italy + Spain)
-curl "https://data.europa.eu/api/hub/search/search?q=environment&country=IT,ES&limit=10"
+# Strict filter for Portugal (all results will have country=pt)
+curl "https://data.europa.eu/api/hub/search/search?q=acidentes+rodoviarios&filter=dataset&facetOperator=AND&facetGroupOperator=AND&facets=%7B%22country%22%3A%5B%22pt%22%5D%7D&limit=10"
 
-# France energy data (since data.gouv.fr is not CKAN)
-curl "https://data.europa.eu/api/hub/search/search?q=energie+energy&country=FR&limit=10"
+# France water quality (strict)
+curl "https://data.europa.eu/api/hub/search/search?q=qualite+eau&filter=dataset&facetOperator=AND&facetGroupOperator=AND&facets=%7B%22country%22%3A%5B%22fr%22%5D%7D&limit=10"
 
-# Filter by EU theme (Environment)
-curl "https://data.europa.eu/api/hub/search/search?q=air+quality&theme=http://publications.europa.eu/resource/authority/data-theme/ENVI&limit=10"
+# Italy + Spain (multiple countries)
+curl "https://data.europa.eu/api/hub/search/search?q=environment&filter=dataset&facetOperator=AND&facetGroupOperator=AND&facets=%7B%22country%22%3A%5B%22it%22%2C%22es%22%5D%7D&limit=10"
 
-# Recent datasets sorted by issue date
+# Recent datasets sorted by issue date (no country filter)
 curl "https://data.europa.eu/api/hub/search/search?q=climate&sort=issued+desc&limit=10"
-
-# Count datasets by country (facet, no results)
-curl "https://data.europa.eu/api/hub/search/search?q=*&facets=country&limit=0"
 ```
 
 ### Response Structure
