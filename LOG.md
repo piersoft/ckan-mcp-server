@@ -1,5 +1,9 @@
 # LOG
 
+## 2026-03-07 (v0.4.77)
+
+- fix(`http.ts`): remove `Referer`, `Sec-Fetch-*`, `Upgrade-Insecure-Requests` from axios headers — these triggered WAF block on BA Data (data.buenosaires.gob.ar) and other portals with strict WAF rules; dati.gov.it unaffected
+
 ## 2026-03-06 (v0.4.75)
 
 - fix(`ckan_find_portals`): deduplicate portals by hostname, preferring https over http
