@@ -118,6 +118,20 @@ See [references/europa-api.md](references/europa-api.md) for full API patterns.
 **Default tool: always REST API via Bash**:
 - REST is the only reliable method for country-filtered searches on data.europa.eu
 
+**Publisher catalog URL**:
+Each dataset result contains a `catalog.id` field (e.g. `"eige"`, `"dane-gov-pl"`).
+Use it to build a direct link to all datasets from that publisher on data.europa.eu:
+```
+https://data.europa.eu/data/datasets?locale=en&catalog={catalog.id}
+```
+Always include this link when showing results from data.europa.eu — it lets the user
+browse all datasets from the same publisher without extra queries.
+
+```
+Example: dataset with catalog.id = "eige"
+→ Publisher page: https://data.europa.eu/data/datasets?locale=en&catalog=eige
+```
+
 ```
 Example: "Trova dati ambientali per Italia e Spagna"
 -> Bash: curl "https://data.europa.eu/api/hub/search/search?q=ambiente+environment&filter=dataset&facetOperator=AND&facetGroupOperator=AND&facets=%7B%22country%22%3A%5B%22it%22%2C%22es%22%5D%7D&limit=10"
