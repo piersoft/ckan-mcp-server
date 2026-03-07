@@ -24,10 +24,15 @@ recorded_dates() {
 fetch_day() {
   local date="$1"
 
-  # Skip if already recorded
+  # Skip if already recorded with a non-zero value
   if recorded_dates | grep -qx "$date"; then
-    echo "  already recorded: $date — skip"
-    return
+    local existing
+    existing=$(grep "\"date\":\"${date}\"" "$OUTPUT" | jq -r '.downloads')
+    if [[ "$existing" -gt 0 ]]; then
+      echo "  already recorded: $date ($existing downloads) — skip"
+      return
+    fi
+    echo "  re-fetching: $date (was 0, counts may not have been finalized yet)"
   fi
 
   local url="https://api.npmjs.org/downloads/point/${date}:${date}/${PACKAGE}"
@@ -36,6 +41,12 @@ fetch_day() {
 
   local downloads
   downloads=$(echo "$response" | jq -r '.downloads // 0')
+
+  # Remove existing zero record if present, then append updated value
+  local tmp
+  tmp=$(mktemp)
+  grep -v "\"date\":\"${date}\"" "$OUTPUT" > "$tmp" || true
+  mv "$tmp" "$OUTPUT"
 
   echo "{\"date\":\"${date}\",\"downloads\":${downloads}}" >> "$OUTPUT"
   echo "  fetched: $date → $downloads downloads"
