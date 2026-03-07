@@ -817,6 +817,14 @@ For issues or questions, [open an issue on GitHub](https://github.com/ondata/cka
 
 ---
 
+## Privacy Policy
+
+This server collects no personal data. It is read-only and stateless — queries are forwarded directly to the public CKAN API you specify, and no data is stored or logged.
+
+See the full [Privacy Policy](https://github.com/ondata/ckan-mcp-server/blob/main/PRIVACY.md).
+
+---
+
 ## 🔗 Useful Links
 
 - [CKAN](https://ckan.org/) — the open-source platform behind most public open data portals

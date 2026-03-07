@@ -15,6 +15,11 @@
   },
   "license": "MIT",
   "keywords": ["ckan", "open-data", "data-portal"],
+  "privacy_policies": [
+    {
+      "url": "https://github.com/ondata/ckan-mcp-server/blob/main/PRIVACY.md"
+    }
+  ],
   "icon": "icon.png",
 "server": {
     "type": "node",
