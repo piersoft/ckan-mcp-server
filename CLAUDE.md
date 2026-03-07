@@ -323,7 +323,6 @@ The server can connect to any CKAN instance. Some main portals:
 - 🇺🇸 https://catalog.data.gov (United States)
 - 🇨🇦 https://open.canada.ca/data (Canada)
 - 🇬🇧 https://data.gov.uk (United Kingdom)
-- 🇪🇺 https://data.europa.eu (European Union)
 - 🌍 https://demo.ckan.org (Official CKAN Demo)
 
 Each portal may have different configurations for:
