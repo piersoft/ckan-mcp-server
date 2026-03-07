@@ -1,0 +1,67 @@
+# OpenAI Codex UI metadata for ckan-mcp skill
+name: ckan-mcp
+version: "1.0"
+description: >
+  MCP server for interacting with CKAN-based open data portals.
+  Search datasets, organizations, and resources on any CKAN server
+  (dati.gov.it, data.gov, demo.ckan.org, etc.) using natural language.
+
+display_name: CKAN Open Data Explorer
+category: data
+tags:
+  - open-data
+  - ckan
+  - datasets
+  - data-catalog
+  - government-data
+
+# Trigger phrases — activate this skill when user asks about these
+triggers:
+  - "open data"
+  - "dataset"
+  - "data portal"
+  - "dati aperti"
+  - "data.gov"
+  - "dati.gov.it"
+  - "CKAN"
+  - "find data"
+  - "search datasets"
+  - "data catalog"
+  - "portale dati"
+  - "dati pubblici"
+
+# MCP server dependency
+mcp_servers:
+  - name: ckan
+    description: CKAN MCP Server — connects to any CKAN open data portal
+    transport: stdio
+    command: node
+    args:
+      - /path/to/ckan-mcp-server/dist/index.js
+    # Alternative: HTTP transport (Cloudflare Workers deployment)
+    # transport: http
+    # url: https://ckan-mcp-server.<account>.workers.dev
+    required_tools:
+      - ckan_find_portals
+      - ckan_status_show
+      - ckan_package_search
+      - ckan_package_show
+      - ckan_list_resources
+      - ckan_find_relevant_datasets
+      - ckan_analyze_datasets
+      - ckan_catalog_stats
+      - ckan_organization_list
+      - ckan_organization_show
+      - ckan_organization_search
+      - ckan_group_list
+      - ckan_group_show
+      - ckan_group_search
+      - ckan_tag_list
+      - ckan_datastore_search
+      - ckan_datastore_search_sql
+      - ckan_get_mqa_quality
+      - ckan_get_mqa_quality_details
+      - sparql_query
+
+# Skill definition file
+skill: ../SKILL.md
