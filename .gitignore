@@ -72,3 +72,6 @@ tasks/
 # Python cache
 __pycache__/
 *.pyc
+
+
+cowork-plugin/ckan-mcp.plugin
