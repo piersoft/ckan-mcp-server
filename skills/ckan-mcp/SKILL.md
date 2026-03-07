@@ -48,10 +48,16 @@ Use when: user mentions a country but no specific portal URL.
    - If it **fails**: tell the user explicitly — e.g. _"The national portal (X) is unreachable or not a valid CKAN instance. Trying alternative portals..."_ — then try the next portals from the list
    - If `ckan_find_portals` returns no national portal: tell the user — e.g. _"No national CKAN portal was found for this country. Searching available regional/local portals..."_
 4. `ckan_package_search(q="TERM_NATIVE OR TERM_EN")` on the first reachable portal
-5. If all CKAN portals return 0 results **and** the country is European: fall back to `data.europa.eu` with strict country filter (see references/europa-api.md):
+5. If all CKAN portals return 0 results **and** the country is European: fall back to `data.europa.eu` using the two-step approach (see references/europa-api.md):
+   - Step 1: find catalogues for the country
    ```bash
-   curl "https://data.europa.eu/api/hub/search/search?q=QUERY&filter=dataset&facetOperator=AND&facetGroupOperator=AND&facets=%7B%22country%22%3A%5B%22xx%22%5D%7D&limit=10"
+   curl "https://data.europa.eu/api/hub/search/search?q=&filter=catalogue&facetOperator=AND&facetGroupOperator=AND&facets=%7B%22superCatalog%22%3A%5B%5D%2C%22country%22%3A%5B%22xx%22%5D%7D&limit=20"
    ```
+   - Step 2: search datasets by catalog ID(s) found in step 1
+   ```bash
+   curl "https://data.europa.eu/api/hub/search/search?q=QUERY&filter=dataset&facetOperator=AND&facetGroupOperator=AND&facets=%7B%22superCatalog%22%3A%5B%5D%2C%22catalog%22%3A%5B%22catalog-id%22%5D%7D&limit=10"
+   ```
+   If step 1 returns 0 catalogues, try the direct country filter on datasets as fallback.
    Country code must be lowercase (e.g. `"pt"`, `"fr"`, `"it"`).
 6. Always summarize which portal was actually used and why (national CKAN / regional CKAN / data.europa.eu fallback)
 
@@ -117,6 +123,12 @@ See [references/europa-api.md](references/europa-api.md) for full API patterns.
 
 **Default tool: always REST API via Bash**:
 - REST is the only reliable method for country-filtered searches on data.europa.eu
+
+**Recommended country search — two-step via catalogue**:
+1. Find catalogues for the country: `filter=catalogue&facets={"superCatalog":[],"country":["xx"]}`
+2. Search datasets by catalog ID: `filter=dataset&facets={"superCatalog":[],"catalog":["catalog-id"]}`
+This is more reliable than the direct `country` facet on datasets, which returns 0 for some countries (e.g. Denmark).
+If step 1 returns 0 catalogues, fall back to direct country filter on datasets.
 
 **Publisher catalog URL**:
 Each dataset result contains a `catalog.id` field (e.g. `"eige"`, `"dane-gov-pl"`).

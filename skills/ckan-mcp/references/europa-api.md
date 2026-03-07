@@ -33,31 +33,59 @@ GET https://data.europa.eu/api/hub/search/search?q=QUERY&...
 | `limit` | Results per page (max 1000) | `limit=10` |
 | `sort` | Sort order | `sort=relevance+desc` or `sort=issued+desc` |
 
-### Strict Country Filtering — CRITICAL
+### Country Filtering — Two-Step Recommended Approach
 
-**`country=XX` is NOT a documented parameter** — it affects relevance ranking only, does NOT strictly filter results.
+For reliable country-filtered searches, use a two-step approach:
 
-The correct way to filter by country requires three parameters together:
-- `facets={"country":["xx"]}` (lowercase ISO code)
-- `facetOperator=AND`
-- `facetGroupOperator=AND`
-
-Without the AND operators, `facets` is silently ignored and results come from all countries.
-This was discovered by intercepting the actual UI API calls — not documented officially.
+**Step 1 — Find catalogues for the country** (`filter=catalogue`):
 
 ```bash
-# Strict filter for Portugal (all results will have country=pt)
+# Find all catalogues for Denmark
+curl "https://data.europa.eu/api/hub/search/search?q=&filter=catalogue&facetOperator=AND&facetGroupOperator=AND&facets=%7B%22superCatalog%22%3A%5B%5D%2C%22country%22%3A%5B%22dk%22%5D%7D&limit=20"
+```
+
+Response includes `id` (catalog ID), `title`, `count` (number of datasets), `country`.
+Discovered by intercepting UI network calls — not officially documented.
+
+**Step 2 — Search datasets filtered by catalog ID**:
+
+```bash
+# Search datasets in Danish catalog "datavejviser"
+curl "https://data.europa.eu/api/hub/search/search?q=QUERY&filter=dataset&facetOperator=AND&facetGroupOperator=AND&facets=%7B%22superCatalog%22%3A%5B%5D%2C%22catalog%22%3A%5B%22datavejviser%22%5D%7D&limit=10"
+
+# Multiple catalogs from same country
+curl "https://data.europa.eu/api/hub/search/search?q=QUERY&filter=dataset&facetOperator=AND&facetGroupOperator=AND&facets=%7B%22superCatalog%22%3A%5B%5D%2C%22catalog%22%3A%5B%22datavejviser%22%2C%22open-data-dk%22%5D%7D&limit=10"
+```
+
+### Direct Country Filter (simpler, works for many countries)
+
+For countries well-represented on the portal (IT, FR, ES, DE, etc.) the single-step
+`country` facet on datasets works:
+
+```bash
+# Strict filter for Portugal
 curl "https://data.europa.eu/api/hub/search/search?q=acidentes+rodoviarios&filter=dataset&facetOperator=AND&facetGroupOperator=AND&facets=%7B%22country%22%3A%5B%22pt%22%5D%7D&limit=10"
 
-# France water quality (strict)
+# France water quality
 curl "https://data.europa.eu/api/hub/search/search?q=qualite+eau&filter=dataset&facetOperator=AND&facetGroupOperator=AND&facets=%7B%22country%22%3A%5B%22fr%22%5D%7D&limit=10"
 
-# Italy + Spain (multiple countries)
+# Italy + Spain
 curl "https://data.europa.eu/api/hub/search/search?q=environment&filter=dataset&facetOperator=AND&facetGroupOperator=AND&facets=%7B%22country%22%3A%5B%22it%22%2C%22es%22%5D%7D&limit=10"
-
-# Recent datasets sorted by issue date (no country filter)
-curl "https://data.europa.eu/api/hub/search/search?q=climate&sort=issued+desc&limit=10"
 ```
+
+If country filter returns 0 datasets, fall back to the two-step catalogue approach above.
+
+### Publisher Catalog URL
+
+Each dataset result contains `catalog.id`. Use it to build a direct link to the publisher's
+datasets on data.europa.eu:
+
+```
+https://data.europa.eu/data/datasets?locale=en&catalog={catalog.id}
+```
+
+Always show this link when presenting results — e.g. `catalog.id = "eige"` →
+`https://data.europa.eu/data/datasets?locale=en&catalog=eige`
 
 ### Response Structure
 
