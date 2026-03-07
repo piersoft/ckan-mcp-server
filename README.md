@@ -431,6 +431,56 @@ ckan_datastore_search_sql({
 
 ---
 
+## 🧠 AI Skill for smarter multi-step queries
+
+The MCP server provides the raw tools — the skill teaches your AI assistant **how to use them intelligently**.
+
+Out of the box, an AI assistant knows each tool individually. The skill adds higher-level reasoning: which portal to query for a given country, what to do when a portal is unreachable, how to fall back to the European open data portal, and how to construct queries that actually return results.
+
+**What the skill adds:**
+
+- **Country routing** — automatically identifies the most authoritative CKAN portal for a country (national > regional > local)
+- **Fallback chain** — if a portal is unreachable or returns 0 results, tries alternatives and, for European countries, falls back to `data.europa.eu` with correct country filters
+- **Query construction** — bilingual queries, parser selection, `fq` syntax, wildcard handling
+- **Correct API patterns** — the European portal (`data.europa.eu`) requires specific `facets+facetOperator+facetGroupOperator` parameters that are undocumented and easy to get wrong; the skill encodes this correctly
+
+**Examples of what the skill enables:**
+
+```
+"Find road accident data in Portugal"
+→ ckan_find_portals(country="Portugal")          # finds 3 regional portals
+→ ckan_package_search on each → 0 results
+→ [tells user] "No results on Portuguese CKAN portals. Trying data.europa.eu..."
+→ curl "https://data.europa.eu/api/hub/search/search?q=acidentes+rodoviarios
+         &facetOperator=AND&facetGroupOperator=AND&facets={"country":["pt"]}"
+→ 157 datasets found — reported with source and filter details
+```
+
+```
+"Find French open data about energy"
+→ [knows data.gouv.fr is NOT CKAN — redirects to data.europa.eu]
+→ curl "...?q=energie+energy&facets={"country":["fr"]}..."
+→ Results filtered strictly to France
+```
+
+### Install the skill
+
+The skill folder lives at [`skills/ckan-mcp/`](https://github.com/ondata/ckan-mcp-server/tree/main/skills/ckan-mcp) in this repository and is listed on [**skills.sh**](https://skills.sh/ondata/ckan-mcp-server). Use the [Skills CLI](https://github.com/vercel-labs/skills#readme) to install it:
+
+```bash
+# Install globally (available in all your projects)
+npx skills add -g ondata/ckan-mcp-server
+
+# Or for a single project (run from your project folder)
+npx skills add ondata/ckan-mcp-server
+```
+
+### Claude Desktop — `.skill` file
+
+For Claude Desktop, a ready-to-import `.skill` package is available at [`skills/claude-desktop/ckan-mcp.skill`](https://github.com/ondata/ckan-mcp-server/blob/main/skills/claude-desktop/ckan-mcp.skill). Download it and drag it into Claude Desktop to install directly.
+
+---
+
 ## 🌍 Supported CKAN Portals
 
 Some examples of supported portals:
