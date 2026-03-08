@@ -117,6 +117,10 @@ Use when: user mentions EU-wide data, multi-country comparison, OR France
 - For text search: use `Bash` with the REST API `https://data.europa.eu/api/hub/search/search`
 - For precise/structured queries: use `sparql_query(endpoint="https://data.europa.eu/sparql")`
 
+**Query language — EU-wide vs country-specific**:
+- EU-wide (no country filter): use **English terms only** — multilingual queries overweight countries with more native-language datasets (e.g. IT dominates with Italian terms)
+- Country-specific (with catalogue filter): use **native language terms** for that country
+
 See [references/europa-api.md](references/europa-api.md) for full API patterns.
 
 **REST API known limitations**:
