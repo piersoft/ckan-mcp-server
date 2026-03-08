@@ -90,10 +90,18 @@ Known portals have stable settings (API path, `force_text_field`, HVD field name
 
 Unknown portals fall back to defaults (`force_text_field: false`, standard API path, etc.) and are auto-probed when needed.
 
+**Non-standard API paths**: most CKAN portals expose the API at `/api/3/action`. Some do not. `portals.json` has an `api_path` field to override this per portal. Currently only one portal needs it:
+
+- `data.gov.uk`: uses `/api/action` (not `/api/3/action`)
+
+The fallback `getPortalApiPath()` in `portal-config.ts` returns `/api/3/action` for any portal not listed, so unknown portals work out of the box unless they also use a non-standard path.
+
 Notable non-standard portals:
-- `data.gov.uk`: uses `/api/action` (not `/api/3/action`), needs `force_text_field`
-- `dati.gov.it`: needs `force_text_field`, has HVD support, has a SPARQL endpoint
+- `data.gov.uk`: `api_path: "/api/action"`, needs `force_text_field`
+- `dati.gov.it`: `api_url` includes a path prefix (`/opendata`), so the full API base is `https://www.dati.gov.it/opendata/api/3/action`; needs `force_text_field`, has HVD support, has a SPARQL endpoint
 - `opendata.swiss`: default parser returns more results than text parser — do NOT set `force_text_field`
+
+**SPARQL endpoint User-Agent**: `lod.dati.gov.it/sparql` returns 403 without a browser-like `User-Agent`. The server sends `Mozilla/5.0 (compatible; CKAN-MCP-Server/1.0)` for all SPARQL requests. Direct curl calls without this header will fail — always include `-H "User-Agent: Mozilla/5.0 (compatible; CKAN-MCP-Server/1.0)"`.
 
 ---
 

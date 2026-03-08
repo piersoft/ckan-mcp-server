@@ -349,7 +349,33 @@ fq: "res_format:CSV OR res_format:JSON"
 | `ckan_tag_list` | List available tags on a portal |
 | `ckan_get_mqa_quality` | MQA overall quality score |
 | `ckan_get_mqa_quality_details` | MQA dimension-by-dimension breakdown |
-| `sparql_query` | SPARQL on data.europa.eu |
+| `sparql_query` | SPARQL on data.europa.eu and dati.gov.it |
+
+## SPARQL via curl
+
+When using `sparql_query` is not enough or you need to debug a query directly, use curl.
+
+**GET vs POST**: the tool picks the HTTP method from `portals.json` when the endpoint is known. `lod.dati.gov.it/sparql` is configured as GET. All other endpoints default to POST, with automatic fallback to GET on 403/405.
+
+**Critical**: `lod.dati.gov.it/sparql` requires GET method and a browser-like `User-Agent` — without the correct User-Agent the endpoint returns 403.
+
+```bash
+# dati.gov.it — GET method, User-Agent required
+curl -s -G "https://lod.dati.gov.it/sparql" \
+  --data-urlencode "query=SELECT ?dataset ?title WHERE {
+    ?dataset a <http://www.w3.org/ns/dcat#Dataset> ;
+             <http://purl.org/dc/terms/title> ?title .
+    FILTER(CONTAINS(LCASE(STR(?title)), \"popolazione\"))
+  } LIMIT 10" \
+  -H "Accept: application/sparql-results+json" \
+  -H "User-Agent: Mozilla/5.0 (compatible; CKAN-MCP-Server/1.0)"
+
+# data.europa.eu — POST with raw SPARQL body (Content-Type: application/sparql-query)
+curl -s -X POST "https://data.europa.eu/sparql" \
+  -H "Content-Type: application/sparql-query" \
+  -H "Accept: application/sparql-results+json" \
+  --data-raw "SELECT ?s WHERE { ?s a <http://www.w3.org/ns/dcat#Dataset> } LIMIT 5"
+```
 
 ## Reference Files
 
