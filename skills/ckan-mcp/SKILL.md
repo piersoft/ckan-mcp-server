@@ -183,12 +183,23 @@ Use when: user asks about the content of a specific dataset or wants to query ta
 4. If DataStore is available:
    - `ckan_datastore_search(resource_id=..., limit=0)` — discover columns
    - `ckan_datastore_search(resource_id=..., q=..., limit=100)` — query data
-5. If no DataStore: get the resource URL from the metadata and analyze it directly
-   with DuckDB (works for CSV, JSON, Parquet over HTTP):
+5. **If no DataStore — check source portal first** (harvested datasets):
+   Many national/regional aggregators (e.g. dati.gov.it) harvest datasets from
+   municipal or regional portals but do not replicate the DataStore. The resource
+   download URLs often contain the source portal domain, dataset ID, and resource ID.
+   - Inspect resource URLs: if the domain differs from `server_url`, extract the
+     source portal URL (e.g. `https://dati.comune.milano.it`)
+   - Extract the dataset ID and resource ID from the URL path
+   - Call `ckan_list_resources(server_url=SOURCE_PORTAL, id=SOURCE_DATASET_ID)` to
+     check if DataStore is active there
+   - If yes, use `ckan_datastore_search(server_url=SOURCE_PORTAL, resource_id=SOURCE_RESOURCE_ID, ...)`
+   - Tell the user that data is being queried from the source portal, not the aggregator
+6. If still no DataStore: analyze the resource URL directly with DuckDB
+   (works for CSV, JSON, Parquet over HTTP):
    ```bash
-   duckdb -jsonlines -c "DESCRIBE SELECT * FROM read_csv('URL')"
-   duckdb -jsonlines -c "SUMMARIZE SELECT * FROM read_csv('URL')"
-   duckdb -jsonlines -c "SELECT * FROM read_csv('URL') USING SAMPLE 10"
+   duckdb -c "COPY (DESCRIBE SELECT * FROM read_csv('URL')) TO '/dev/stdout' (FORMAT JSON)"
+   duckdb -c "COPY (SUMMARIZE SELECT * FROM read_csv('URL')) TO '/dev/stdout' (FORMAT JSON)"
+   duckdb -c "COPY (SELECT * FROM read_csv('URL') USING SAMPLE 10) TO '/dev/stdout' (FORMAT JSON)"
    ```
    For non-CSV formats use `read_json('URL')` or `read_parquet('URL')`.
    If the resource is not directly queryable (HTML, PDF, zip), provide the
@@ -200,6 +211,14 @@ Example: "Show me the data in dataset clima-2024"
 -> ckan_list_resources(server_url=..., dataset_id="clima-2024")
 -> [if datastore_active] ckan_datastore_search(resource_id=..., limit=0)
 -> ckan_datastore_search(resource_id=..., q="...", limit=100)
+
+Example: dataset harvested from source portal, no DataStore on aggregator
+-> ckan_list_resources(server_url="https://dati.gov.it/opendata", id="dataset-xyz")
+-> datastore_active: No — resource URL: https://dati.comune.milano.it/dataset/abc/resource/def/download/...
+-> [extract] source_portal="https://dati.comune.milano.it", dataset_id="abc", resource_id="def"
+-> ckan_list_resources(server_url="https://dati.comune.milano.it", id="abc")
+-> datastore_active: Yes → ckan_datastore_search(server_url="https://dati.comune.milano.it", resource_id="def", limit=0)
+-> [tell user] "DataStore not available on dati.gov.it — querying source portal dati.comune.milano.it directly."
 ```
 
 ### Flow E — Organizations and Groups
@@ -342,7 +361,7 @@ fq: "res_format:CSV OR res_format:JSON"
 
 - Never invent dataset names, IDs, URLs, or statistics
 - Report only what MCP tools return
-- If DataStore is absent on a portal, say so and offer the resource download URL
+- If DataStore is absent on an aggregator portal, always check the source portal first (see Flow D step 5) before falling back to direct download
 
 ## Tool Quick Reference
 
