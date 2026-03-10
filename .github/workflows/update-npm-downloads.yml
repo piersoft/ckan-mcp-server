@@ -2,7 +2,7 @@ name: Update npm Downloads
 
 on:
   schedule:
-    - cron: "0 4 * * *"   # 04:00 UTC daily
+    - cron: "0 10 * * *"  # 10:00 UTC daily (npm API finalizes previous day data by then)
   workflow_dispatch:       # manual trigger
 
 jobs:
