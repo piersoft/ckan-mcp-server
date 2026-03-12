@@ -1,5 +1,9 @@
 # LOG
 
+## 2026-03-12
+
+- chore(`package.json`, `server.json`): add `mcpName` for MCP Registry publication (`io.github.ondata/ckan-mcp-server`); bump to v0.4.82
+
 ## 2026-03-10
 
 - fix(`worker.ts`+`worker_telemetry_flatten.py`): `ckan_find_portals` now logs `country`, `language`, `has_datastore`, `min_datasets` — previously always `null` in `worker_events_flat.jsonl`
