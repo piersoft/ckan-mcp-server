@@ -418,3 +418,4 @@ curl -s -X POST "https://data.europa.eu/sparql" \
 
 - [`references/europa-api.md`](references/europa-api.md) — Read this for any query involving data.europa.eu: REST API patterns, country filtering, SPARQL examples, EU data themes and country codes.
 - [`references/tools.md`](references/tools.md) — Full `ckanapi` CLI equivalents for every MCP tool, with jq formatting patterns and DuckDB analysis examples. Read this when you need to replicate or extend tool behavior via Bash, or when the user needs to explore CSV resources directly.
+- [`references/hvd.md`](references/hvd.md) — High Value Datasets (EU Regulation 2023/138): API filters, the 6 thematic categories and sub-categories, country breakdowns, and HVD on national CKAN portals. Read this when the user asks about HVD or "dati ad alto valore".
