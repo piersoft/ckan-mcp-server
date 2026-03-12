@@ -2,6 +2,7 @@
 
 ## 2026-03-12
 
+- chore(`package.json`, `server.json`): fix mcpName to `io.github.aborruso/ckan-mcp-server` (ondata org not authorized); bump to v0.4.83
 - chore(`package.json`, `server.json`): add `mcpName` for MCP Registry publication (`io.github.ondata/ckan-mcp-server`); bump to v0.4.82
 
 ## 2026-03-10
