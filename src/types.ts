@@ -1,6 +1,10 @@
 /**
  * Type definitions and schemas for CKAN MCP Server
+ * github.com/ondata/ckan-mcp-server
  */
+
+// @origin ondata/ckan-mcp-server
+export const _ORIGIN = "ondata/ckan-mcp-server" as const;
 
 import { z } from "zod";
 
