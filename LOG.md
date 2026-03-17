@@ -1,5 +1,9 @@
 # LOG
 
+## 2026-03-17
+
+- fix(`tools/sparql.ts`): add `; charset=utf-8` to POST Content-Type — fixes accented chars corruption in SPARQL queries (issue #22)
+
 ## 2026-03-16
 
 - docs(`tools/datastore.ts`): add security note to `ckan_datastore_search_sql` — clarifies SQL forwarding boundary; bump v0.4.86

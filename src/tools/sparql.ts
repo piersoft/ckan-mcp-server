@@ -76,7 +76,7 @@ export async function querySparqlEndpoint(endpointUrl: string, query: string): P
       response = await fetch(endpointUrl, {
         method: "POST",
         signal: controller.signal,
-        headers: { ...commonHeaders, "Content-Type": "application/sparql-query" },
+        headers: { ...commonHeaders, "Content-Type": "application/sparql-query; charset=utf-8" },
         body: query
       });
       // Fallback to GET if POST is rejected

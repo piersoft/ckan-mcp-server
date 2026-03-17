@@ -37,7 +37,7 @@ describe('sparql_query', () => {
         expect.objectContaining({
           method: 'POST',
           headers: expect.objectContaining({
-            'Content-Type': 'application/sparql-query',
+            'Content-Type': 'application/sparql-query; charset=utf-8',
             'Accept': 'application/sparql-results+json'
           }),
           body: 'SELECT ?s WHERE { ?s ?p ?o } LIMIT 1'
