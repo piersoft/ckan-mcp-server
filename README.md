@@ -37,7 +37,7 @@ Hosted endpoint: `https://ckan-mcp-server.andy-pr.workers.dev/mcp`
 
 ## 🔌 Use it in your favorite tool
 
-[ChatGPT](#chatgpt) | [Claude Desktop](#claude-desktop) | [Claude Code](#claude-code) | [Gemini CLI](#gemini-cli) | [VS Code](#vs-code) | [Codex CLI](#codex-cli)
+[ChatGPT](#chatgpt) | [Claude Desktop](#claude-desktop) | [Claude Code](#claude-code) | [Le Chat (Mistral)](#le-chat-mistral) | [Gemini CLI](#gemini-cli) | [VS Code](#vs-code) | [Codex CLI](#codex-cli)
 
 This server works with any MCP-compatible client. The sections below cover some of the most popular ones — if your tool isn't listed, check its documentation for MCP configuration and use the same endpoint URL or command.
 
@@ -129,6 +129,18 @@ To add it only for a specific project, run from the project folder without the `
 ```bash
 claude mcp add --transport http ckan https://ckan-mcp-server.andy-pr.workers.dev/mcp
 ```
+
+### Le Chat (Mistral)
+
+1. In the left sidebar, click **Intelligence**, then select **Connectors**
+2. Click **+ Add Connector**
+3. Select the **Custom MCP Connector** tab and fill in the details:
+   - **Name:** CKAN
+   - **Connector Server:** `https://ckan-mcp-server.andy-pr.workers.dev/mcp`
+4. Click **Connect** to save
+5. Open a new chat, click **+**, then **Connectors**, and enable **CKAN**
+
+> For a step-by-step walkthrough with screenshots, see the [full Le Chat guide](https://github.com/ondata/ckan-mcp-server/blob/main/docs/guide/mistral/mistral_web.md).
 
 ### Gemini CLI
 
