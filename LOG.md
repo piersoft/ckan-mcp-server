@@ -2,6 +2,12 @@
 
 ## 2026-03-19
 
+### v0.4.88
+
+- fix(`tools/organization.ts`): `ckan_organization_search` now shows `view_url` in markdown table and JSON output; `ckan_organization_show` JSON includes `view_url` — all using `portals.json` custom patterns
+
+
+
 - evals(`evals/tool-selection`): tool selection eval pipeline — synthetic NL query generation (Gemini, 1583 records), train/eval split, fine-tuning Qwen2.5-0.5B with Unsloth on Colab T4; 86.3% accuracy on 8 tools; model published at huggingface.co/aborruso/ckan-tool-selector
 
 ## 2026-03-17

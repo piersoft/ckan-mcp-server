@@ -77,7 +77,7 @@ export function compactOrganizationList(result: any): object {
  * Compact JSON for organization_show results.
  * Keeps org metadata + slim package list, drops extras/users/groups.
  */
-export function compactOrganizationShow(result: any): object {
+export function compactOrganizationShow(result: any, serverUrl: string): object {
   return {
     id: result.id,
     name: result.name,
@@ -86,6 +86,7 @@ export function compactOrganizationShow(result: any): object {
     image_url: result.image_url || null,
     package_count: result.package_count ?? 0,
     created: result.created || null,
+    view_url: getOrganizationViewUrl(serverUrl, result),
     packages: (result.packages || []).map((pkg: any) => ({
       id: pkg.id,
       name: pkg.name,
@@ -326,7 +327,7 @@ Typical workflow: ckan_organization_show → ckan_package_show (inspect a datase
         );
 
         if (params.response_format === ResponseFormat.JSON) {
-          const compact = compactOrganizationShow(result);
+          const compact = compactOrganizationShow(result, params.server_url);
           return {
             content: [{ type: "text", text: truncateJson(compact) }],
             structuredContent: compact
@@ -414,7 +415,8 @@ Typical workflow: ckan_organization_search → ckan_organization_show (get detai
             organizations: orgFacets.map((item: OrgFacetItem) => ({
               name: item.name,
               display_name: item.display_name,
-              dataset_count: item.count
+              dataset_count: item.count,
+              view_url: getOrganizationViewUrl(params.server_url, { name: item.name })
             }))
           };
 
@@ -436,11 +438,12 @@ Typical workflow: ckan_organization_search → ckan_organization_show (get detai
           markdown += `\n> **Note**: No data was found on this portal. Do not use information from other sources to supplement this result.\n`;
         } else {
           markdown += `## Matching Organizations\n\n`;
-          markdown += `| Organization | Datasets |\n`;
-          markdown += `|--------------|----------|\n`;
+          markdown += `| Organization | Datasets | Link |\n`;
+          markdown += `|--------------|----------|------|\n`;
 
           for (const org of orgFacets) {
-            markdown += `| ${org.display_name || org.name} | ${org.count} |\n`;
+            const viewUrl = getOrganizationViewUrl(params.server_url, { name: org.name });
+            markdown += `| ${org.display_name || org.name} | ${org.count} | ${viewUrl} |\n`;
           }
         }
 
