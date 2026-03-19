@@ -582,8 +582,12 @@ gh release create v0.X.Y --generate-notes
 ### Step 8: Publish to npm
 
 ```bash
-npm publish
+NPM_CONFIG_CACHE=/tmp/npm-cache npm publish
 ```
+
+> **Warning**: Never pipe `npm publish` into `grep` or any filter before chaining with `&&`.
+> The pipe transfers `grep`'s exit code (1 if no match), not npm's — causing subsequent commands to be silently skipped.
+> Always run `npm publish` alone, then run the next step separately.
 
 Verify:
 - Check https://www.npmjs.com/package/@aborruso/ckan-mcp-server
