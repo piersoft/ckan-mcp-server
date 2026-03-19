@@ -504,7 +504,10 @@ Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
 
 ### Step 4: Push to GitHub
 
+Before pushing, check if the remote has new commits (e.g. from another machine or collaborator):
+
 ```bash
+git pull --rebase origin main
 git push origin main
 ```
 
