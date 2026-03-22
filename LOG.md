@@ -1,5 +1,9 @@
 # LOG
 
+## 2026-03-22
+
+- chore(deps): update `@modelcontextprotocol/sdk` 1.25.2 → 1.27.1 — fixes Claude Desktop crash with MCP protocol `2025-11-25`
+
 ## 2026-03-19
 
 ### v0.4.89
