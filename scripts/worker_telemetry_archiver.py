@@ -1,8 +1,8 @@
 """
 Cloudflare Worker Telemetry Archiver
-Scarica eventi di telemetria del Worker e li archivia in JSONL.
+Scarica eventi di telemetria del Worker e aggiorna worker_events_flat.jsonl.
+Non persiste il file raw: fetch → flatten → dedup → append, tutto in memoria.
 Legge CF_API_TOKEN da env var (GHA) o da .env nella root del progetto.
-Dopo ogni fetch fa merge+dedup+sort (timestamp desc) sul file di output.
 """
 
 import json
@@ -27,7 +27,7 @@ ACCOUNT_ID = os.environ.get("CF_ACCOUNT_ID", "c89b6bdafbbb793bf64cfa3b271fa5a4")
 API_TOKEN = os.environ.get("CF_API_TOKEN", "")
 DATA_DIR = Path(__file__).parent.parent / "data"
 DATA_DIR.mkdir(exist_ok=True)
-OUTPUT_FILE = DATA_DIR / "worker_events.jsonl"
+FLAT_FILE = DATA_DIR / "worker_events_flat.jsonl"
 STATE_FILE = DATA_DIR / "worker_telemetry_last_run.json"
 DAY_MS = 86400 * 1000
 
@@ -94,29 +94,84 @@ def fetch_events(from_ms, to_ms):
     return all_events
 
 
-def merge_dedup_sort(new_events):
-    """Unisce nuovi eventi con quelli esistenti, dedup per id, sort timestamp desc."""
-    existing = {}
-    if OUTPUT_FILE.exists():
-        for line in OUTPUT_FILE.read_text().splitlines():
+def extract_query(source: dict) -> str | None:
+    if source.get("tool") == "ckan_find_portals":
+        parts = []
+        for key in ("country", "query", "language", "has_datastore", "min_datasets"):
+            val = source.get(key)
+            if val is not None:
+                parts.append(f"{key}={val}")
+        return " ".join(parts) or None
+
+    return (
+        source.get("q")
+        or source.get("query")
+        or source.get("id")
+        or source.get("pattern")
+        or source.get("sql")
+        or source.get("resource_id")
+    )
+
+
+def flatten(event: dict) -> dict | None:
+    workers = event.get("$workers", {})
+    metadata = event.get("$metadata", {})
+    source = event.get("source", {})
+
+    # Escludi GET probe (senza tool)
+    method = workers.get("event", {}).get("request", {}).get("method")
+    if method == "GET":
+        return None
+
+    ts_ms = event.get("timestamp", 0)
+    ts_iso = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(ts_ms / 1000))
+
+    return {
+        "id": metadata.get("id"),
+        "timestamp": ts_iso,
+        "outcome": workers.get("outcome"),
+        "tool": source.get("tool") if isinstance(source, dict) else None,
+        "server": source.get("server") if isinstance(source, dict) else None,
+        "query": extract_query(source) if isinstance(source, dict) else None,
+        "error": metadata.get("error"),
+    }
+
+
+def load_existing_flat() -> dict[str, dict]:
+    """Carica flat file esistente. Ritorna dict id→record."""
+    existing: dict[str, dict] = {}
+    if FLAT_FILE.exists():
+        for line in FLAT_FILE.read_text().splitlines():
             if line.strip():
-                e = json.loads(line)
-                eid = e.get("$metadata", {}).get("id")
-                if eid:
-                    existing[eid] = e
+                rec = json.loads(line)
+                if rec.get("id"):
+                    existing[rec["id"]] = rec
+    return existing
 
-    for e in new_events:
-        eid = e.get("$metadata", {}).get("id")
-        if eid:
-            existing[eid] = e
 
-    merged = sorted(existing.values(), key=lambda e: e.get("timestamp", 0), reverse=True)
+def update_flat(new_events: list) -> tuple[int, int]:
+    """Flattena nuovi eventi, dedup contro flat esistente, riscrive il file."""
+    existing = load_existing_flat()
+    added = 0
+    skipped_get = 0
 
-    with open(OUTPUT_FILE, "w") as f:
-        for e in merged:
-            f.write(json.dumps(e) + "\n")
+    for event in new_events:
+        flat = flatten(event)
+        if flat is None:
+            skipped_get += 1
+            continue
+        eid = flat.get("id")
+        if eid and eid not in existing:
+            existing[eid] = flat
+            added += 1
 
-    return len(merged)
+    # Riscrivi ordinato per timestamp asc
+    records = sorted(existing.values(), key=lambda r: r.get("timestamp", ""))
+    with open(FLAT_FILE, "w") as f:
+        for rec in records:
+            f.write(json.dumps(rec) + "\n")
+
+    return added, skipped_get
 
 
 def run(once=True, backfill_days=1):
@@ -146,9 +201,10 @@ def run(once=True, backfill_days=1):
             events = fetch_events(chunk_from, chunk_to)
             all_events.extend(events)
 
-        total = merge_dedup_sort(all_events)
         if all_events:
-            print(f"  Nuovi: {len(all_events)} | Totale file: {total} | {OUTPUT_FILE}")
+            added, skipped_get = update_flat(all_events)
+            total = sum(1 for _ in FLAT_FILE.read_text().splitlines() if _.strip())
+            print(f"  Scaricati: {len(all_events)} | Nuovi nel flat: {added} | GET esclusi: {skipped_get} | Totale flat: {total}")
         else:
             print("  Nessun evento nuovo.")
 

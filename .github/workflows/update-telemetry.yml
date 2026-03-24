@@ -22,13 +22,10 @@ jobs:
       - name: Install dependencies
         run: pip install requests
 
-      - name: Fetch new events
+      - name: Fetch and flatten new events
         env:
           CF_API_TOKEN: ${{ secrets.CF_API_TOKEN }}
         run: python scripts/worker_telemetry_archiver.py
-
-      - name: Generate flat JSONL
-        run: python scripts/worker_telemetry_flatten.py
 
       - name: Install DuckDB
         run: |

@@ -77,3 +77,4 @@ __pycache__/
 
 
 cowork-plugin/ckan-mcp.plugin
+data/worker_events.jsonl
