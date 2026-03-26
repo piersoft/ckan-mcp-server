@@ -121,6 +121,17 @@
       "organization_view_url": "https://ckan-prod.zurich.datopian.com/organization/{name}"
     },
     {
+      "id": "data-gov-ua",
+      "name": "data.gov.ua",
+      "api_url": "https://data.gov.ua",
+      "api_url_aliases": [
+        "http://data.gov.ua"
+      ],
+      "search": {
+        "force_text_field": false
+      }
+    },
+    {
       "id": "govdata-de",
       "name": "govdata.de",
       "api_url": "https://ckan.govdata.de",

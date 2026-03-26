@@ -1,5 +1,11 @@
 # LOG
 
+## 2026-03-26
+
+### v0.4.94
+
+- Add `data.gov.ua` (Ukraine open data portal) to `portals.json` with explicit `force_text_field: false` to prevent auto-detection from incorrectly wrapping Solr queries in `text:(...)`, which caused 0 results
+
 ## 2026-03-24
 
 ### v0.4.93

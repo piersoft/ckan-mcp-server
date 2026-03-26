@@ -466,6 +466,15 @@ Update the version in **all** of these files — missing any one causes version 
 > **Warning**: `src/worker.ts` contains a hardcoded `tools` count in the `/health` response.
 > Update it whenever you add or remove tools, or the health endpoint will report the wrong count.
 
+**Quick bump** (replace `OLD` and `NEW` with actual versions):
+
+```bash
+OLD=0.4.93 NEW=0.4.94
+sed -i "s/\"version\": \"$OLD\"/\"version\": \"$NEW\"/g" package.json package-lock.json manifest.json
+sed -i "s/version: \"$OLD\"/version: \"$NEW\"/" src/server.ts
+sed -i "s/version: '$OLD'/version: '$NEW'/" src/worker.ts
+```
+
 Edit `package.json` and bump version:
 
 ```json
