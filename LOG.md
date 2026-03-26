@@ -2,6 +2,10 @@
 
 ## 2026-03-26
 
+### v0.4.96
+
+- Add `dati.regione.sicilia.it` (Sicily open data portal) to `portals.json` with `force_text_field: false` — CKAN 2.6.8 does not support the `text:(...)` query wrapper
+
 ### v0.4.95
 
 - Show `Portal Locale` (`locale_default`) in `ckan_status_show` markdown output

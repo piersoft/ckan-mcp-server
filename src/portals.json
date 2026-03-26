@@ -132,6 +132,17 @@
       }
     },
     {
+      "id": "dati-regione-sicilia",
+      "name": "dati.regione.sicilia.it",
+      "api_url": "https://dati.regione.sicilia.it",
+      "api_url_aliases": [
+        "http://dati.regione.sicilia.it"
+      ],
+      "search": {
+        "force_text_field": false
+      }
+    },
+    {
       "id": "govdata-de",
       "name": "govdata.de",
       "api_url": "https://ckan.govdata.de",
