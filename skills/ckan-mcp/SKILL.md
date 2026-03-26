@@ -330,16 +330,15 @@ Example: "Which vocabulary covers open government datasets?"
 
 ### Query Construction
 
-- Use bilingual queries **only on multilingual portals** (e.g. data.europa.eu,
-  open.canada.ca EN+FR). On monolingual portals query in the portal's language only.
-
-  | Portal | Query language |
-  |--------|---------------|
-  | data.europa.eu | bilingual/multilingual — use EN + native |
-  | open.canada.ca | bilingual — use EN + FR |
-  | dati.gov.it | Italian only — no EN terms |
-  | catalog.data.gov | English only |
-  | data.gov.uk | English only |
+- **Always check the portal's locale before searching**: call `ckan_status_show` and read the
+  `Portal Locale` field (`locale_default`). Translate query terms to that language.
+  Searching in English on a non-English portal returns 0 results.
+  - `it` / `it_IT` → Italian only
+  - `uk_UA` → Ukrainian (Cyrillic) only
+  - `de_DE` → German only
+  - `en` / `en_US` / `en_GB` → English only
+  - `fr_FR` → French only
+  - Exception: multilingual portals (data.europa.eu, open.canada.ca) → use EN + native terms joined with OR
 
 - Example (multilingual): `q="environment OR ambiente OR environnement"`
 - Example (monolingual IT): `q="qualità aria"` — no English needed

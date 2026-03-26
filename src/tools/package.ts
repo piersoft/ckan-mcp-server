@@ -598,7 +598,13 @@ Examples:
   - Filter extras OR (correct): { fq: "extras_hvd_category:(\"http://data.europa.eu/bna/c_ac64a52d\" OR \"http://data.europa.eu/bna/c_dd313021\")" }
   - Get facets: { facet_field: ["organization"], rows: 0 }
 
-Typical workflow: ckan_package_search → ckan_package_show (get full metadata + resource IDs) → ckan_datastore_search (query tabular data)`,
+Query language:
+  Before searching a portal, check its locale via ckan_status_show (field: "Portal Locale" / locale_default).
+  Translate query terms to the portal's language — searching in English on a non-English portal returns 0 results.
+  Examples: locale "it" → Italian terms; "uk_UA" → Ukrainian (Cyrillic); "fr_FR" → French.
+  Exception: multilingual portals (e.g. data.europa.eu, open.canada.ca) accept EN + native terms joined with OR.
+
+Typical workflow: ckan_status_show (check locale) → ckan_package_search (query in portal's language) → ckan_package_show (get full metadata + resource IDs) → ckan_datastore_search (query tabular data)`,
       inputSchema: z.object({
         server_url: z.string()
           .url("Must be a valid URL")
