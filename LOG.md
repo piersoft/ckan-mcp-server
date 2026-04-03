@@ -1,5 +1,14 @@
 # LOG
 
+## 2026-04-03
+
+### v0.4.97
+
+- Improve tool parameter descriptions for Code Mode compatibility (group, tag, package tools)
+- Add `.describe()` to all parameters in `ckan_group_list`, `ckan_group_show`, `ckan_group_search`
+- Add `.describe()` to all parameters in `ckan_tag_list`
+- Improve `ckan_package_show` parameter descriptions (server_url example, id UUID/slug hint)
+
 ## 2026-03-26
 
 ### v0.4.96

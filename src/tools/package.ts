@@ -1100,10 +1100,10 @@ Typical workflow: ckan_package_show → pick a resource with datastore_active=tr
       inputSchema: z.object({
         server_url: z.string()
           .url()
-          .describe("Base URL of the CKAN server"),
+          .describe("Base URL of the CKAN server (e.g., https://dati.gov.it/opendata)"),
         id: z.string()
           .min(1)
-          .describe("Dataset ID or name"),
+          .describe("Dataset ID (UUID) or machine-readable name slug (e.g., 'raccolta-differenziata-comuni')"),
         include_tracking: z.boolean()
           .optional()
           .default(false)

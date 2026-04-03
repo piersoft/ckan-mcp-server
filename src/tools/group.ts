@@ -148,11 +148,11 @@ Returns:
 
 Typical workflow: ckan_group_list → ckan_group_show (inspect one) → ckan_package_search with fq="groups:name" (browse its datasets)`,
       inputSchema: z.object({
-        server_url: z.string().url(),
-        all_fields: z.boolean().optional().default(false),
-        sort: z.string().optional().default("name asc"),
-        limit: z.number().int().min(0).optional().default(100),
-        offset: z.number().int().min(0).optional().default(0),
+        server_url: z.string().url().describe("Base URL of the CKAN server (e.g., https://dati.gov.it/opendata)"),
+        all_fields: z.boolean().optional().default(false).describe("Return full group objects (true) or just name slugs (false)"),
+        sort: z.string().optional().default("name asc").describe("Sort field and direction (e.g., 'name asc', 'package_count desc')"),
+        limit: z.number().int().min(0).optional().default(100).describe("Max groups to return. Use 0 to get only the count via faceting"),
+        offset: z.number().int().min(0).optional().default(0).describe("Pagination offset"),
         response_format: ResponseFormatSchema
       }).strict(),
       annotations: {
@@ -262,9 +262,9 @@ Returns:
 
 Typical workflow: ckan_group_show → ckan_package_show (inspect a dataset) → ckan_datastore_search (query its data)`,
       inputSchema: z.object({
-        server_url: z.string().url(),
-        id: z.string().min(1),
-        include_datasets: z.boolean().optional().default(true),
+        server_url: z.string().url().describe("Base URL of the CKAN server (e.g., https://dati.gov.it/opendata)"),
+        id: z.string().min(1).describe("Group ID (UUID) or machine-readable name slug (e.g., 'transport', 'energia')"),
+        include_datasets: z.boolean().optional().default(true).describe("Include the list of datasets belonging to this group"),
         response_format: ResponseFormatSchema
       }).strict(),
       annotations: {
@@ -328,8 +328,8 @@ Returns:
 
 Typical workflow: ckan_group_search → ckan_group_show (get details) → ckan_package_search with fq="groups:name"`,
       inputSchema: z.object({
-        server_url: z.string().url(),
-        pattern: z.string().min(1).describe("Search pattern (wildcards added automatically)"),
+        server_url: z.string().url().describe("Base URL of the CKAN server (e.g., https://dati.gov.it/opendata)"),
+        pattern: z.string().min(1).describe("Name pattern to search for (wildcards added automatically, e.g., 'energia', 'salute')"),
         response_format: ResponseFormatSchema
       }).strict(),
       annotations: {
