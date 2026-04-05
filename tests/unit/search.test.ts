@@ -68,9 +68,9 @@ describe('resolveSearchQuery', () => {
     expect(result.forcedTextField).toBe(false);
   });
 
-  it('escapes Solr special characters for text field wrapping', () => {
+  it('escapes Solr special characters for text field wrapping (preserves quotes)', () => {
     const escaped = escapeSolrQuery('foo") (bar):baz\\qux');
-    expect(escaped).toBe('foo\\\"\\) \\(bar\\)\\:baz\\\\qux');
+    expect(escaped).toBe('foo"\\) \\(bar\\)\\:baz\\\\qux');
 
     const result = resolveSearchQuery(
       'https://www.dati.gov.it/opendata',
@@ -78,7 +78,18 @@ describe('resolveSearchQuery', () => {
       undefined
     );
 
-    expect(result.effectiveQuery).toBe('text:(foo\\\"\\) \\(bar\\)\\:baz\\\\qux)');
+    expect(result.effectiveQuery).toBe('text:(foo"\\) \\(bar\\)\\:baz\\\\qux)');
+    expect(result.forcedTextField).toBe(true);
+  });
+
+  it('preserves quoted phrases inside text:() wrapping', () => {
+    const result = resolveSearchQuery(
+      'https://www.dati.gov.it/opendata',
+      'SIC OR PAI OR "aree protette" OR "rischio idrogeologico"',
+      undefined
+    );
+
+    expect(result.effectiveQuery).toBe('text:(SIC OR PAI OR "aree protette" OR "rischio idrogeologico")');
     expect(result.forcedTextField).toBe(true);
   });
 });

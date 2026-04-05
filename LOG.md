@@ -1,5 +1,9 @@
 # LOG
 
+## 2026-04-05
+
+- Fix `ckan_package_search`: quoted phrases (e.g. `"aree protette"`) now work inside `text:(...)` wrapping — removed `"` from `escapeSolrQuery` special chars so phrase queries are preserved
+
 ## 2026-04-03
 
 ### v0.4.97

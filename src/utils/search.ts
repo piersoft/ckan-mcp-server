@@ -4,7 +4,7 @@ export type QueryParserOverride = "default" | "text" | undefined;
 
 const DEFAULT_SEARCH_QUERY = "*:*";
 const FIELD_QUERY_PATTERN = /\b[a-zA-Z_][\w-]*:/;
-const SOLR_SPECIAL_CHARS = /[+\-!(){}[\]^"~*?:\\/|&]/g;
+const SOLR_SPECIAL_CHARS = /[+\-!(){}[\]^~*?:\\/|&]/g;
 
 function isFieldedQuery(query: string): boolean {
   return FIELD_QUERY_PATTERN.test(query);
