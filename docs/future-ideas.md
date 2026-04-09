@@ -416,6 +416,40 @@ if __name__ == "__main__":
 
 ---
 
+## Plugin Architecture (2026-04-09)
+
+Source: https://github.com/okfn/mcp-ckan
+
+OKFN's mcp-ckan is a plugin framework with no built-in tools — tools are loaded at runtime from external Python packages via `mcp_ckan` entry points. The server starts empty; users must install plugins separately. As of 2026-04, no public plugins exist.
+
+Our approach is opposite: all tools are built-in and ready at first start. A plugin system would let third parties extend the server without modifying core code.
+
+### Possible plugin categories
+
+**Domain-specific tools**
+- `ckan-mcp-plugin-budget` — tools for budget/financial datasets (chapters, annual comparisons)
+- `ckan-mcp-plugin-geo` — spatial analysis on GeoJSON/Shapefile resources
+- `ckan-mcp-plugin-ambiente` — environmental indicators, air/water time series
+
+**Portal-specific extensions**
+- `ckan-mcp-plugin-datigovit` — dati.gov.it extras (HVD, DCAT-AP_IT, EUDP themes)
+- `ckan-mcp-plugin-dataeuropa` — native SPARQL + MQA quality integration
+- `ckan-mcp-plugin-opencanada` — EN/FR bilingualism, Canada-specific filters
+
+**Cross-cutting features**
+- `ckan-mcp-plugin-compare` — compare datasets across different portals
+- `ckan-mcp-plugin-monitor` — track changes (new/removed/updated datasets)
+- `ckan-mcp-plugin-export` — export to specific formats (Excel, GeoPackage)
+
+### Design considerations
+
+- Keep core tools built-in (current approach works well)
+- Plugins as optional add-ons, not a replacement for core
+- Entry point pattern (like OKFN) or simpler file-based discovery
+- Risk: building infrastructure nobody uses (OKFN lesson)
+
+---
+
 ## Backlog Priority
 
 1. ~~**High**: MCP Resource Templates~~ ✅ Done (v0.3.0)
