@@ -20,6 +20,8 @@ Select Connectors & sources.
 
 Click on Connect external app (or navigate to your Profile Settings > Apps to add a new custom MCP server).
 
+![connectors list](images/02.jpg)
+
 ### 2) Server Configuration
 
 In the configuration screen **perplexity**, fill in the fields as follows:
@@ -35,7 +37,7 @@ Select **No Authentication** on *Authorization Type* and **HTTP Streamable** for
 
 Consent: Check the box "I am aware that custom connectors can introduce risks" to confirm you trust the source.
 
-![perplexity](images/perplexity.png)
+![perplexity](images/01.jpg)
 
 Save: Click the button in the bottom right to confirm.
 
