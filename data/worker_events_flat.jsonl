@@ -3301,3 +3301,11 @@
 {"id": "01KP3NHWHXC5440W5XKMQEMXG0", "timestamp": "2026-04-13T14:57:26Z", "outcome": "ok", "tool": "ckan_package_search", "server": "https://datosabiertos.navarra.es/", "query": "espacios naturales protegidos", "error": null}
 {"id": "01KP3NJK3F68AR34TX9G7D1CJW", "timestamp": "2026-04-13T14:57:49Z", "outcome": "ok", "tool": "ckan_package_show", "server": "https://datosabiertos.navarra.es/", "query": "espacios-naturales", "error": null}
 {"id": "01KP3NJTQSZ2MMB7ACN5QEC9QV", "timestamp": "2026-04-13T14:57:57Z", "outcome": "ok", "tool": "ckan_package_show", "server": "https://datosabiertos.navarra.es/", "query": "spasitnabiodiv_pol_rena-xml", "error": null}
+{"id": "01KP5SQ51AR9Z6060N8BJ7EHDV", "timestamp": "2026-04-14T10:48:39Z", "outcome": "ok", "tool": "ckan_find_portals", "server": "", "query": "country=Italy query=anticorruzione", "error": null}
+{"id": "01KP5SSZC6JFPSDB1APV777E2V", "timestamp": "2026-04-14T10:50:14Z", "outcome": "ok", "tool": "ckan_package_search", "server": "https://dati.gov.it/opendata", "query": "ANAC bandi gara appalti", "error": null}
+{"id": "01KP666SE69JR0P1R56F2W3ZPN", "timestamp": "2026-04-14T14:26:52Z", "outcome": "ok", "tool": "ckan_find_portals", "server": "", "query": "country=Italy language=it min_datasets=100", "error": null}
+{"id": "01KP6674W3YBCBDKGMD7JB7WQG", "timestamp": "2026-04-14T14:27:04Z", "outcome": "ok", "tool": "ckan_find_portals", "server": "", "query": "country=Italy query=Veneto", "error": null}
+{"id": "01KP66795KR3WM6PWV2CRW778K", "timestamp": "2026-04-14T14:27:13Z", "outcome": "ok", "tool": "ckan_status_show", "server": "https://dati.veneto.it", "query": null, "error": null}
+{"id": "01KP6681FVFQ6V8M3HB76QMX27", "timestamp": "2026-04-14T14:27:38Z", "outcome": "ok", "tool": "ckan_status_show", "server": "https://dati.veneto.it", "query": null, "error": null}
+{"id": "01KP68ZS9W4MC50QR4S1WYT1TG", "timestamp": "2026-04-14T15:15:33Z", "outcome": "ok", "tool": "ckan_package_show", "server": "", "query": null, "error": null}
+{"id": "01KP68ZZ150NYA2REJ8YA3XER9", "timestamp": "2026-04-14T15:15:38Z", "outcome": "ok", "tool": "ckan_package_show", "server": "https://data.stadt-zuerich.ch", "query": "ugz_luftschadstoffmessung_tageswerte", "error": null}
