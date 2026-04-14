@@ -10,9 +10,14 @@ import {
   getCacheConfig,
   getTtlForAction
 } from "./cache.js";
+import {
+  getRateLimiter,
+  getRateLimitConfig
+} from "./rate-limiter.js";
 
 export interface MakeCkanRequestOptions {
   cache?: boolean;
+  rateLimit?: boolean;
 }
 
 type ZlibModule = {
@@ -284,6 +289,13 @@ export async function makeCkanRequest<T>(
     if (cached !== undefined) {
       return cached as T;
     }
+  }
+
+  const rateLimitConfig = getRateLimitConfig();
+  const rateLimitEnabled = rateLimitConfig.enabled && opts.rateLimit !== false;
+  if (rateLimitEnabled) {
+    const hostname = new URL(resolvedServerUrl).hostname;
+    await getRateLimiter().acquire(hostname);
   }
 
   try {

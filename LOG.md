@@ -2,6 +2,17 @@
 
 ## 2026-04-14
 
+### v0.4.101
+
+- Add per-portal upstream rate limiter (`src/utils/rate-limiter.ts`)
+- Token bucket algorithm, one independent bucket per hostname
+- Integration in `makeCkanRequest`: cache hit bypasses limiter; only upstream fetches consume tokens
+- Config: `CKAN_RATE_LIMIT_ENABLED`, `CKAN_RATE_LIMIT_RPS` (default 5), `CKAN_RATE_LIMIT_BURST` (default 10), `CKAN_RATE_LIMIT_MAX_WAIT_MS` (default 5000)
+- Per-call bypass via `opts.rateLimit: false`; disabled by default in Vitest runs
+- `RateLimitError` thrown when wait exceeds `maxWaitMs` (includes hostname + wait ms)
+- 13 new unit tests; suite now 370 tests, all green
+- OpenSpec: `add-upstream-rate-limiter`
+
 ### v0.4.100
 
 - Add read-through HTTP cache layer in `makeCkanRequest` (`src/utils/cache.ts`)
