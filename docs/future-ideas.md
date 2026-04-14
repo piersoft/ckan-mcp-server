@@ -450,6 +450,40 @@ Our approach is opposite: all tools are built-in and ready at first start. A plu
 
 ---
 
+## Progressive Disclosure / Code Mode (2026-04-14)
+
+Source: https://blog.cloudflare.com/enterprise-mcp/
+
+Cloudflare's enterprise MCP post describes "Code Mode": collapsing 52 tools into 2 generic portals, achieving ~94% token reduction in context window usage. For clients with limited context windows or many tools loaded, this matters.
+
+### Idea: `ckan_query` generic tool
+
+A single tool that accepts any CKAN `action` + raw `params` dict, replacing the 20+ specific tools:
+
+```typescript
+ckan_query({
+  server_url: "https://www.dati.gov.it/opendata",
+  action: "package_search",
+  params: { q: "ambiente", rows: 5 }
+})
+```
+
+**Benefits**:
+- Schema is 3 fields vs 15–20 per tool — minimal context footprint
+- Covers every CKAN API action, including ones not explicitly implemented
+- Ideal for power users and agents that already know the CKAN API
+
+**Tradeoffs**:
+- Loses per-tool input validation (Zod schemas), documentation, and examples
+- LLM must know CKAN API action names and parameter structure without hints
+- No tool-level output formatting (would return raw JSON)
+
+**Possible approach**: ship both — keep specific tools for guided use, add `ckan_query` as an escape hatch for advanced cases. Clients that need minimal context can expose only `ckan_query`.
+
+**Implementation complexity**: Low (~50 lines) — thin wrapper around `makeCkanRequest`.
+
+---
+
 ## Backlog Priority
 
 1. ~~**High**: MCP Resource Templates~~ ✅ Done (v0.3.0)
