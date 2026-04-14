@@ -2,6 +2,12 @@
 
 ## 2026-04-14
 
+### v0.4.102
+
+- Add `cache_hit` field to worker telemetry log entries
+- `getLastCacheHit()` exported from `src/utils/http.ts`; `worker.ts` logs after response with `cache_hit: true/false`
+- Enables cache hit rate analysis in `worker_events_flat.jsonl`
+
 ### v0.4.101
 
 - Add per-portal upstream rate limiter (`src/utils/rate-limiter.ts`)

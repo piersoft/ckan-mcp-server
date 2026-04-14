@@ -20,6 +20,13 @@ export interface MakeCkanRequestOptions {
   rateLimit?: boolean;
 }
 
+let _lastCacheHit: boolean | null = null;
+
+/** Returns whether the last makeCkanRequest call was served from cache. */
+export function getLastCacheHit(): boolean | null {
+  return _lastCacheHit;
+}
+
 type ZlibModule = {
   brotliDecompressSync: (input: Buffer) => Buffer;
   gunzipSync: (input: Buffer) => Buffer;
@@ -287,9 +294,11 @@ export async function makeCkanRequest<T>(
   if (cache) {
     const cached = await cache.get(cacheKey);
     if (cached !== undefined) {
+      _lastCacheHit = true;
       return cached as T;
     }
   }
+  _lastCacheHit = false;
 
   const rateLimitConfig = getRateLimitConfig();
   const rateLimitEnabled = rateLimitConfig.enabled && opts.rateLimit !== false;

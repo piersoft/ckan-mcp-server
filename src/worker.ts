@@ -6,6 +6,7 @@
 
 import { createServer, registerAll } from "./server.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
+import { getLastCacheHit } from "./utils/http.js";
 
 export default {
   async fetch(request: Request): Promise<Response> {
@@ -211,7 +212,7 @@ export default {
     if (request.method === 'GET' && url.pathname === '/health') {
       return new Response(JSON.stringify({
         status: 'ok',
-        version: '0.4.101',
+        version: '0.4.102',
         tools: 20,
         resources: 7,
         prompts: 6,
@@ -260,35 +261,41 @@ export default {
         });
         await server.connect(transport);
 
-        // Clone request to read body for logging without consuming it
+        // Clone request to read body for logging (after response to include cache_hit)
         const clonedRequest = request.clone();
+        let logEntry: Record<string, unknown> | null = null;
         try {
           const body = await clonedRequest.json() as { method?: string; params?: { name?: string; arguments?: Record<string, unknown> } };
           if (body?.method === 'tools/call' && body?.params?.name) {
             const tool = body.params.name;
             const a = body.params.arguments ?? {};
-            const entry: Record<string, unknown> = { tool, server: a['server_url'] ?? a['endpoint_url'] ?? '' };
-            if (a['q'] !== undefined)             entry['q'] = a['q'];
-            if (a['fq'] !== undefined)            entry['fq'] = a['fq'];
-            if (a['query'] !== undefined)         entry['query'] = a['query'];
-            if (a['id'] !== undefined)            entry['id'] = a['id'];
-            if (a['name'] !== undefined)          entry['name'] = a['name'];
-            if (a['pattern'] !== undefined)       entry['pattern'] = a['pattern'];
-            if (a['resource_id'] !== undefined)   entry['resource_id'] = a['resource_id'];
-            if (a['format_filter'] !== undefined) entry['format_filter'] = a['format_filter'];
-            if (a['sort'] !== undefined)          entry['sort'] = a['sort'];
-            if (a['rows'] !== undefined)          entry['rows'] = a['rows'];
-            if (a['limit'] !== undefined)         entry['limit'] = a['limit'];
-            if (a['sql'] !== undefined)           entry['sql'] = String(a['sql']).slice(0, 200);
-            if (a['country'] !== undefined)       entry['country'] = a['country'];
-            if (a['language'] !== undefined)      entry['language'] = a['language'];
-            if (a['has_datastore'] !== undefined) entry['has_datastore'] = a['has_datastore'];
-            if (a['min_datasets'] !== undefined)  entry['min_datasets'] = a['min_datasets'];
-            console.log(JSON.stringify(entry));
+            logEntry = { tool, server: a['server_url'] ?? a['endpoint_url'] ?? '' };
+            if (a['q'] !== undefined)             logEntry['q'] = a['q'];
+            if (a['fq'] !== undefined)            logEntry['fq'] = a['fq'];
+            if (a['query'] !== undefined)         logEntry['query'] = a['query'];
+            if (a['id'] !== undefined)            logEntry['id'] = a['id'];
+            if (a['name'] !== undefined)          logEntry['name'] = a['name'];
+            if (a['pattern'] !== undefined)       logEntry['pattern'] = a['pattern'];
+            if (a['resource_id'] !== undefined)   logEntry['resource_id'] = a['resource_id'];
+            if (a['format_filter'] !== undefined) logEntry['format_filter'] = a['format_filter'];
+            if (a['sort'] !== undefined)          logEntry['sort'] = a['sort'];
+            if (a['rows'] !== undefined)          logEntry['rows'] = a['rows'];
+            if (a['limit'] !== undefined)         logEntry['limit'] = a['limit'];
+            if (a['sql'] !== undefined)           logEntry['sql'] = String(a['sql']).slice(0, 200);
+            if (a['country'] !== undefined)       logEntry['country'] = a['country'];
+            if (a['language'] !== undefined)      logEntry['language'] = a['language'];
+            if (a['has_datastore'] !== undefined) logEntry['has_datastore'] = a['has_datastore'];
+            if (a['min_datasets'] !== undefined)  logEntry['min_datasets'] = a['min_datasets'];
           }
         } catch { /* ignore parse errors (e.g. non-JSON requests) */ }
 
         const response = await transport.handleRequest(request);
+
+        if (logEntry) {
+          const cacheHit = getLastCacheHit();
+          if (cacheHit !== null) logEntry['cache_hit'] = cacheHit;
+          console.log(JSON.stringify(logEntry));
+        }
 
         // Add CORS headers and service notices
         const headers = new Headers(response.headers);
