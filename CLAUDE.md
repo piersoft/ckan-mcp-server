@@ -421,7 +421,7 @@ To test with Claude Desktop, add MCP configuration to config file.
 - **Output limit**: 50,000 characters hardcoded in `types.ts` (could be configurable)
 - **Date formatting**: Uses fixed ISO `YYYY-MM-DD` in `utils/formatting.ts` (could be configurable)
 - **Read-only**: All tools are read-only (no data modification on CKAN)
-- **No caching**: Every request makes fresh HTTP call to CKAN APIs
+- **Caching**: Read-through cache in `makeCkanRequest`. Action-based TTL (metadata 300s, datastore 60s, status 3600s). Backend: Cloudflare Cache API on Workers, in-memory LRU on Node. Disable with `CKAN_CACHE_ENABLED=false`. Env vars: `CKAN_CACHE_TTL_DEFAULT`, `CKAN_CACHE_MAX_ENTRIES`, `CKAN_CACHE_MAX_ENTRY_BYTES`.
 - **No authentication**: Uses only public CKAN endpoints
 - **No WebSocket**: MCP over HTTP uses JSON responses (not SSE streaming in Workers)
 

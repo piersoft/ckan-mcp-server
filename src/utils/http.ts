@@ -4,6 +4,16 @@
 
 import axios, { AxiosError } from "axios";
 import { getPortalApiUrlForHostname, getPortalApiPath } from "./portal-config.js";
+import {
+  buildCacheKey,
+  getCache,
+  getCacheConfig,
+  getTtlForAction
+} from "./cache.js";
+
+export interface MakeCkanRequestOptions {
+  cache?: boolean;
+}
 
 type ZlibModule = {
   brotliDecompressSync: (input: Buffer) => Buffer;
@@ -236,7 +246,8 @@ export function validateServerUrl(serverUrl: string): void {
 export async function makeCkanRequest<T>(
   serverUrl: string,
   action: string,
-  params: Record<string, any> = {}
+  params: Record<string, any> = {},
+  opts: MakeCkanRequestOptions = {}
 ): Promise<T> {
   const isNode =
     typeof process !== "undefined" &&
@@ -259,6 +270,21 @@ export async function makeCkanRequest<T>(
   const baseUrl = resolvedServerUrl.replace(/\/$/, '');
   const apiPath = getPortalApiPath(resolvedServerUrl);
   const url = `${baseUrl}${apiPath}/${action}`;
+
+  const cacheConfig = getCacheConfig();
+  const cacheEnabled = cacheConfig.enabled && opts.cache !== false;
+  const ttl = getTtlForAction(action, cacheConfig.ttlDefault);
+  const cache = cacheEnabled && ttl > 0 ? getCache() : null;
+  const cacheKey = cache
+    ? await buildCacheKey(resolvedServerUrl, action, params)
+    : "";
+
+  if (cache) {
+    const cached = await cache.get(cacheKey);
+    if (cached !== undefined) {
+      return cached as T;
+    }
+  }
 
   try {
     let decodedData: unknown;
@@ -327,7 +353,18 @@ export async function makeCkanRequest<T>(
     }
 
     if (decodedData && (decodedData as { success?: boolean }).success === true) {
-      return (decodedData as { result: T }).result;
+      const result = (decodedData as { result: T }).result;
+      if (cache) {
+        try {
+          const serialized = JSON.stringify(result);
+          if (serialized.length <= cacheConfig.maxEntryBytes) {
+            await cache.set(cacheKey, result, ttl);
+          }
+        } catch {
+          // Non-serializable payload: skip caching silently.
+        }
+      }
+      return result;
     } else {
       throw new Error(
         `CKAN API returned success=false: ${JSON.stringify(decodedData)}`

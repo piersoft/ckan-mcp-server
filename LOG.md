@@ -1,5 +1,18 @@
 # LOG
 
+## 2026-04-14
+
+### v0.4.100
+
+- Add read-through HTTP cache layer in `makeCkanRequest` (`src/utils/cache.ts`)
+- Backends: Cloudflare Cache API on Workers, bounded in-memory LRU on Node
+- Action-based TTL: metadata 300s, datastore 60s, status 3600s; fallback configurable
+- Env vars: `CKAN_CACHE_ENABLED`, `CKAN_CACHE_TTL_DEFAULT`, `CKAN_CACHE_MAX_ENTRIES`, `CKAN_CACHE_MAX_ENTRY_BYTES`
+- Per-call bypass via `makeCkanRequest(..., { cache: false })`; errors and oversize payloads never cached
+- 29 new unit tests; suite now 357 tests, all green
+- Measured locally: 348 ms cache miss → 13 ms cache hit on identical `package_search` calls (~27×)
+- OpenSpec: `add-http-cache-layer` (proposal + design + spec)
+
 ## 2026-04-09
 
 ### v0.4.99

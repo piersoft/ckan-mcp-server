@@ -36,7 +36,7 @@ Exposes MCP tools for:
   - HTTP - for remote access via POST /mcp endpoint
   - Cloudflare Workers - `/mcp` endpoint in `src/worker.ts`
 - **Read-only operations** - no data modification on CKAN
-- **No caching** - fresh API calls for each request
+- **Read-through cache** - responses cached at `makeCkanRequest` layer with action-based TTL (metadata 300s, datastore 60s, status 3600s); backend is Cloudflare Cache API on Workers, bounded in-memory LRU on Node; disable with `CKAN_CACHE_ENABLED=false`
 - **Error handling** - HTTP errors, timeouts, server validation
 
 ### Testing Strategy
@@ -82,7 +82,7 @@ Exposes MCP tools for:
 - 30-second timeout for CKAN API calls
 - Read-only operations only (security by design)
 - No authentication (public endpoints only)
-- No caching (trade-off: freshness vs performance)
+- Cache TTL is a freshness floor (up to 5 min for metadata, 1 min for datastore, 1h for status); disable via `CKAN_CACHE_ENABLED=false` if live data required
 
 ### Build System
 - esbuild config: bundles TypeScript, externalizes runtime deps

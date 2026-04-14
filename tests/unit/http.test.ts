@@ -1,7 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterAll } from 'vitest';
 import { brotliCompressSync, deflateSync, gzipSync } from 'node:zlib';
 import axios from 'axios';
 import { makeCkanRequest, validateServerUrl } from '../../src/utils/http';
+import { __resetCacheForTests } from '../../src/utils/cache';
 import successResponse from '../fixtures/responses/status-success.json';
 
 vi.mock('axios');
@@ -289,5 +290,72 @@ describe('makeCkanRequest', () => {
 
     const axiosCall = vi.mocked(axios.get).mock.calls[0];
     expect(axiosCall[1].timeout).toBe(30000);
+  });
+});
+
+describe('makeCkanRequest cache integration', () => {
+  const originalEnv = process.env.CKAN_CACHE_ENABLED;
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    __resetCacheForTests();
+    process.env.CKAN_CACHE_ENABLED = 'true';
+  });
+
+  afterAll(() => {
+    if (originalEnv === undefined) delete process.env.CKAN_CACHE_ENABLED;
+    else process.env.CKAN_CACHE_ENABLED = originalEnv;
+    __resetCacheForTests();
+  });
+
+  it('serves identical calls from cache after first miss', async () => {
+    vi.mocked(axios.get).mockResolvedValue({ data: successResponse });
+
+    await makeCkanRequest('http://demo.ckan.org', 'status_show');
+    await makeCkanRequest('http://demo.ckan.org', 'status_show');
+
+    expect(vi.mocked(axios.get)).toHaveBeenCalledTimes(1);
+  });
+
+  it('treats different params as separate entries', async () => {
+    vi.mocked(axios.get).mockResolvedValue({ data: successResponse });
+
+    await makeCkanRequest('http://demo.ckan.org', 'package_search', { q: 'a' });
+    await makeCkanRequest('http://demo.ckan.org', 'package_search', { q: 'b' });
+
+    expect(vi.mocked(axios.get)).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not cache success=false responses', async () => {
+    vi.mocked(axios.get).mockResolvedValue({
+      data: { success: false, error: { message: 'bad' } }
+    });
+
+    await expect(
+      makeCkanRequest('http://demo.ckan.org', 'status_show')
+    ).rejects.toThrow();
+    await expect(
+      makeCkanRequest('http://demo.ckan.org', 'status_show')
+    ).rejects.toThrow();
+
+    expect(vi.mocked(axios.get)).toHaveBeenCalledTimes(2);
+  });
+
+  it('does not cache when opts.cache=false', async () => {
+    vi.mocked(axios.get).mockResolvedValue({ data: successResponse });
+
+    await makeCkanRequest('http://demo.ckan.org', 'status_show', {}, { cache: false });
+    await makeCkanRequest('http://demo.ckan.org', 'status_show', {}, { cache: false });
+
+    expect(vi.mocked(axios.get)).toHaveBeenCalledTimes(2);
+  });
+
+  it('bypasses cache read when opts.cache=false even if entry exists', async () => {
+    vi.mocked(axios.get).mockResolvedValue({ data: successResponse });
+
+    await makeCkanRequest('http://demo.ckan.org', 'status_show');
+    await makeCkanRequest('http://demo.ckan.org', 'status_show', {}, { cache: false });
+
+    expect(vi.mocked(axios.get)).toHaveBeenCalledTimes(2);
   });
 });
