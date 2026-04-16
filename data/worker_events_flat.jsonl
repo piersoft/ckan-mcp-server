@@ -3373,3 +3373,20 @@
 {"id": "01KP8S4VFJYK0JVMMYVHWKM7M0", "timestamp": "2026-04-15T14:36:25Z", "outcome": "ok", "tool": "ckan_package_search", "server": "https://open.canada.ca", "query": "national human settlement hazard exposure risk", "error": null}
 {"id": "01KP8S4ZJ63XXV739MEYSQZXJE", "timestamp": "2026-04-15T14:36:30Z", "outcome": "ok", "tool": "ckan_package_search", "server": "https://open.canada.ca", "query": "registered corporation business charity nonprofit", "error": null}
 {"id": "01KP8S52M52D5NCTTEJS9JT1CE", "timestamp": "2026-04-15T14:36:33Z", "outcome": "ok", "tool": "ckan_package_search", "server": "https://open.canada.ca", "query": null, "error": null}
+{"id": "01KPASB38JRYNYRVRF7Y2XA48V", "timestamp": "2026-04-16T09:18:19Z", "outcome": "ok", "tool": "ckan_find_portals", "server": "", "query": "country=United States query=government", "error": null}
+{"id": "01KPASB56T55MTP870QGX2E16S", "timestamp": "2026-04-16T09:18:21Z", "outcome": "ok", "tool": "ckan_status_show", "server": "https://catalog.data.gov", "query": null, "error": null}
+{"id": "01KPASB6X7FGEM8HCXJW4Q2GHN", "timestamp": "2026-04-16T09:18:23Z", "outcome": "ok", "tool": "ckan_group_list", "server": "https://catalog.data.gov", "query": null, "error": null}
+{"id": "01KPASCT6B0QEXW6ECX69P8MAE", "timestamp": "2026-04-16T09:19:15Z", "outcome": "ok", "tool": "ckan_find_portals", "server": "", "query": "country=United States query=US Government", "error": null}
+{"id": "01KPASCZYBVCN803R32X7E6ME5", "timestamp": "2026-04-16T09:19:21Z", "outcome": "ok", "tool": "ckan_find_portals", "server": "", "query": "country=United States language=en", "error": null}
+{"id": "01KPASD1YCDX8ZNKH4JZBYQ4RF", "timestamp": "2026-04-16T09:19:23Z", "outcome": "ok", "tool": "ckan_status_show", "server": "https://data.gov", "query": null, "error": null}
+{"id": "01KPASD2WE4C38WHXTHM0K49E1", "timestamp": "2026-04-16T09:19:24Z", "outcome": "ok", "tool": "ckan_organization_list", "server": "https://data.gov", "query": null, "error": null}
+{"id": "01KPASEE3NPDMY7076G4WST6P1", "timestamp": "2026-04-16T09:20:08Z", "outcome": "ok", "tool": "ckan_find_portals", "server": "", "query": "country=Canada query=government", "error": null}
+{"id": "01KPASEFHRYVANZS1NXDYZHCY7", "timestamp": "2026-04-16T09:20:10Z", "outcome": "ok", "tool": "ckan_status_show", "server": "https://open.canada.ca/data/en", "query": null, "error": null}
+{"id": "01KPASEGVBWK7PK8X913ZY4FY6", "timestamp": "2026-04-16T09:20:11Z", "outcome": "ok", "tool": "ckan_organization_list", "server": "https://open.canada.ca/data/en", "query": null, "error": null}
+{"id": "01KPASEHT9RFCHXE9CJZ0A41ZH", "timestamp": "2026-04-16T09:20:12Z", "outcome": "ok", "tool": "ckan_group_list", "server": "https://open.canada.ca/data/en", "query": null, "error": null}
+{"id": "01KPASEJMCD3CSKNW3B2ATYCAA", "timestamp": "2026-04-16T09:20:13Z", "outcome": "ok", "tool": "ckan_tag_list", "server": "https://open.canada.ca/data/en", "query": null, "error": null}
+{"id": "01KPASEKVS84P3ZN48TNG9G4VC", "timestamp": "2026-04-16T09:20:14Z", "outcome": "ok", "tool": "ckan_package_search", "server": "https://open.canada.ca/data/en", "query": "government", "error": null}
+{"id": "01KPASEMZ4JR9KTFQ2H1AETHB7", "timestamp": "2026-04-16T09:20:15Z", "outcome": "ok", "tool": "ckan_package_search", "server": "https://open.canada.ca/data/en", "query": null, "error": null}
+{"id": "01KPASEP08J1ZEKHTZGGSQQMCK", "timestamp": "2026-04-16T09:20:16Z", "outcome": "ok", "tool": "ckan_package_search", "server": "https://open.canada.ca/data/en", "query": null, "error": null}
+{"id": "01KPB8KDX7R1M9GJ5Q8X8SCYBX", "timestamp": "2026-04-16T13:45:01Z", "outcome": "ok", "tool": "ckan_package_search", "server": "https://gudang.lokadata.id", "query": "pdrb", "error": null}
+{"id": "01KPB9A5RPHB0KVS9RFX4AA7EZ", "timestamp": "2026-04-16T13:57:26Z", "outcome": "ok", "tool": "ckan_datastore_search_sql", "server": "https://gudang.lokadata.id", "query": "SELECT provinsi, MAX(Nilai) as PDRB_Terbaru FROM \"b86a095c-8aac-4b8f-86fc-7f8699f51352\" WHERE tahun = 2024 GROUP BY provinsi ORDER BY PDRB_Terbaru DESC LIMIT 10", "error": null}
