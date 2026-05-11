@@ -8,8 +8,12 @@ import { createServer, registerAll } from "./server.js";
 import { WebStandardStreamableHTTPServerTransport } from "@modelcontextprotocol/sdk/server/webStandardStreamableHttp.js";
 import { getLastCacheHit } from "./utils/http.js";
 
+interface Env {
+  AUTH_TOKENS: KVNamespace;
+}
+
 export default {
-  async fetch(request: Request): Promise<Response> {
+  async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url);
 
     // Root endpoint - README
@@ -250,6 +254,26 @@ export default {
           }
         });
       }
+
+      // ---- Auth middleware ----
+      const authHeader = request.headers.get('Authorization') || '';
+      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+      if (!token) {
+        return new Response(JSON.stringify({
+          jsonrpc: '2.0',
+          error: { code: -32001, message: 'Unauthorized: missing Bearer token' },
+          id: null
+        }), { status: 401, headers: { 'Content-Type': 'application/json', 'WWW-Authenticate': 'Bearer', 'Access-Control-Allow-Origin': '*' } });
+      }
+      const tokenData = await env.AUTH_TOKENS.get(token);
+      if (!tokenData) {
+        return new Response(JSON.stringify({
+          jsonrpc: '2.0',
+          error: { code: -32001, message: 'Unauthorized: invalid token' },
+          id: null
+        }), { status: 401, headers: { 'Content-Type': 'application/json', 'WWW-Authenticate': 'Bearer', 'Access-Control-Allow-Origin': '*' } });
+      }
+      // ---- End auth middleware ----
 
       try {
         // Create server + transport per request (stateless mode requirement)
