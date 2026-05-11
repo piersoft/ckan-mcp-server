@@ -257,7 +257,9 @@ export default {
 
       // ---- Auth middleware ----
       const authHeader = request.headers.get('Authorization') || '';
-      const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+      const headerToken = authHeader.startsWith('Bearer ') ? authHeader.slice(7).trim() : '';
+      const queryToken = url.searchParams.get('token')?.trim() || '';
+      const token = headerToken || queryToken;
       if (!token) {
         return new Response(JSON.stringify({
           jsonrpc: '2.0',
