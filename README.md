@@ -909,4 +909,4 @@ See the full [Privacy Policy](https://github.com/ondata/ckan-mcp-server/blob/mai
 
 ---
 
-Created with ❤️ by [onData](https://ondata.it) for the open data community
+Created with ❤️ by [onData](https://ondata.it) for the open data community.
