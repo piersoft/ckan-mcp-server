@@ -8,3 +8,7 @@ enabled = true
 
 [build]
 command = "npm run build:worker"
+
+[[kv_namespaces]]
+binding = "AUTH_TOKENS"
+id = "87603c20240b4a9a8955467a3a1ab71b"
