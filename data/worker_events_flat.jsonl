@@ -4035,3 +4035,9 @@
 {"id": "01KRFK1E9AXW0V3VTME0BD5BJP", "timestamp": "2026-05-13T02:35:47Z", "outcome": "ok", "tool": "ckan_package_show", "server": "https://data.wprdc.org", "query": "allegheny-county-air-quality", "error": null}
 {"id": "01KRFKERMGH9G5J5Y1QDFDMYN7", "timestamp": "2026-05-13T02:43:03Z", "outcome": "ok", "tool": "ckan_status_show", "server": "http://catalog.data.gov/api/3/", "query": null, "error": null}
 {"id": "01KRFKZ0ETFS7N4FCAYBDW6QW9", "timestamp": "2026-05-13T02:51:56Z", "outcome": "ok", "tool": "ckan_package_search", "server": "https://data.wprdc.org", "query": null, "error": null}
+{"id": "01KRGAG2KRZW3N2P6SKFQ5KK0Q", "timestamp": "2026-05-13T09:25:44Z", "outcome": "ok", "tool": "ckan_find_portals", "server": "", "query": "country=Italy query=Milano language=it", "error": null}
+{"id": "01KRGAGC6YMA1F3K7TYEB4H5Z5", "timestamp": "2026-05-13T09:25:54Z", "outcome": "ok", "tool": "ckan_find_portals", "server": "", "query": "country=Italy language=it min_datasets=100", "error": null}
+{"id": "01KRGAH31Q1BRG9CHR86TTQAZQ", "timestamp": "2026-05-13T09:26:17Z", "outcome": "ok", "tool": "ckan_find_relevant_datasets", "server": "https://dati.comune.milano.it", "query": "popolazione straniera cittadinanza cinese residenti", "error": null}
+{"id": "01KRGAHAWWNCHK69PCHS4TPG72", "timestamp": "2026-05-13T09:26:25Z", "outcome": "ok", "tool": "ckan_list_resources", "server": "https://dati.comune.milano.it", "query": "ds74-popolazione-residenti-stranieri-cittadinanza-e-municipio", "error": null}
+{"id": "01KRGBZ8JWPX8X9HGHRGPV70YA", "timestamp": "2026-05-13T09:51:30Z", "outcome": "ok", "tool": "ckan_analyze_datasets", "server": "https://dati.comune.milano.it", "query": "incidenti stradali", "error": null}
+{"id": "01KRGBZRG0FGY6ZMKA2YNZDWH4", "timestamp": "2026-05-13T09:51:46Z", "outcome": "ok", "tool": "ckan_datastore_search", "server": "https://dati.comune.milano.it", "query": "2664a1cd-fe74-436a-9114-6a265cc8eaef", "error": null}
