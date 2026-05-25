@@ -2,6 +2,8 @@
 
 ## 2026-05-25
 
+### v0.4.105
+
 - Fix (scoring): `ckan_find_relevant_datasets` now scores `holder_name` (DCAT-AP_IT `dct:rightsHolder`) and `publisher_name` (`dct:publisher`) as distinct weighted fields, separate from `organization`
 - Rationale: on federated catalogs (e.g. `dati.gov.it`, but the pattern applies to any portal harvesting from sub-publishers), `organization` is the harvesting catalog (e.g. `regione-puglia`), NOT the data owner. Queries like "datasets from Comune di Lecce" previously scored 0 on the owner field when the dataset was harvested via Regione Puglia or a local action group, missing the actual `rightsHolder`
 - The fields are read from `extras[]` (the authoritative DCAT-AP_IT location on Italian portals) with fallback to root-level. On dati.gov.it, `package_search` exposes `holder_name` and `publisher_name` both in `extras[]` (correct DCAT values) and at root (often overwritten by the harvester with the organization name); reading only the root would be wrong. The root-level fallback preserves correct behavior on non-DCAT-AP_IT portals (data.gov, open.canada.ca)
