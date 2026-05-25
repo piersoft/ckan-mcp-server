@@ -4430,3 +4430,6 @@
 {"id": "01KSCGB79ENAQM92Y3YRNNTHEE", "timestamp": "2026-05-24T08:06:40Z", "outcome": "ok", "tool": "ckan_find_relevant_datasets", "server": "https://dati.gov.it/opendata", "query": "beni culturali musei patrimonio", "error": null}
 {"id": "01KSD8THMBJXD0TB80ZQXCM4VE", "timestamp": "2026-05-24T15:14:28Z", "outcome": "ok", "tool": "sdmx_search", "server": null, "query": null, "error": null}
 {"id": "01KSD8VS2YJ2154N7PHB8SC7PQ", "timestamp": "2026-05-24T15:15:09Z", "outcome": "ok", "tool": "sdmx_search", "server": null, "query": null, "error": null}
+{"id": "01KSDN8WVN8JYMNWW683PZWTW8", "timestamp": "2026-05-24T18:52:01Z", "outcome": "ok", "tool": "sdmx_search", "server": null, "query": null, "error": null}
+{"id": "01KSDN955QNEX9C0Y4FFCYYQT5", "timestamp": "2026-05-24T18:52:10Z", "outcome": "ok", "tool": "sdmx_search", "server": null, "query": null, "error": null}
+{"id": "01KSEYD8ZWM5QR6HMSC4X0WC9S", "timestamp": "2026-05-25T06:50:56Z", "outcome": "ok", "tool": "ckan_find_relevant_datasets", "server": "https://www.dati.gov.it/opendata", "query": "defibrillatori Comune di Lecce", "error": null}
